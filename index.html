@@ -173,8 +173,8 @@
                     <div id="expandedTaskForm" class="hidden expanded-form">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm text-slate-300 mb-2">Notes (Markdown supported)</label>
-                                <textarea id="newTaskNotes" class="input-field h-24" placeholder="Add detailed notes..."></textarea>
+                                <label class="block text-sm text-slate-300 mb-2">Notes (Rich Text)</label>
+                                <div id="newTaskNotesEditor"></div>
                             </div>
                             <div>
                                 <label class="block text-sm text-slate-300 mb-2">Tags (comma-separated)</label>
@@ -263,8 +263,8 @@
                     <textarea id="editTaskText" class="input-field h-24" placeholder="Enter task description..."></textarea>
                 </div>
                 <div>
-                    <label class="block text-sm text-slate-300 mb-2">Notes (Markdown supported)</label>
-                    <textarea id="editTaskNotes" class="input-field h-32" placeholder="Add detailed notes..."></textarea>
+                    <label class="block text-sm text-slate-300 mb-2">Notes (Rich Text)</label>
+                    <div id="editTaskNotesEditor"></div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -316,6 +316,7 @@
     <input type="file" id="fileInput" accept=".json" class="hidden">
 
     <!-- Scripts -->
+    <script src="rich-text-editor.js"></script>
     <script src="firebase-manager.js"></script>
     <script src="app.js"></script>
 </body>

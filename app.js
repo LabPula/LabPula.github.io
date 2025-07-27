@@ -19,6 +19,9 @@ class GTDTaskManager {
         this.renderTasks();
         this.updateStatistics();
         
+        // Initialize rich text editors
+        this.initializeRichTextEditors();
+        
         // Initialize filter drawer as collapsed
         const filterDrawer = document.getElementById('filterDrawer');
         filterDrawer.classList.add('collapsed');
@@ -35,6 +38,22 @@ class GTDTaskManager {
             // Check again after a short delay
             setTimeout(() => this.checkFirebaseReady(), 1000);
         }
+    }
+
+    initializeRichTextEditors() {
+        // Initialize rich text editor for new task notes
+        this.newTaskNotesEditor = new RichTextEditor('newTaskNotesEditor', {
+            placeholder: 'Add detailed notes with rich formatting...',
+            minHeight: '100px',
+            maxHeight: '200px'
+        });
+
+        // Initialize rich text editor for edit task notes
+        this.editTaskNotesEditor = new RichTextEditor('editTaskNotesEditor', {
+            placeholder: 'Add detailed notes with rich formatting...',
+            minHeight: '120px',
+            maxHeight: '250px'
+        });
     }
 
     // Utility Functions
@@ -94,11 +113,15 @@ class GTDTaskManager {
     clearTaskForm() {
         document.getElementById('newTaskInput').value = '';
         document.getElementById('taskDueDate').value = '';
-        document.getElementById('newTaskNotes').value = '';
         document.getElementById('newTaskTags').value = '';
         document.getElementById('newTaskProgress').value = '0';
         document.getElementById('newProgressValue').textContent = '0%';
         document.getElementById('taskPriority').value = 'medium';
+        
+        // Clear rich text editor
+        if (this.newTaskNotesEditor) {
+            this.newTaskNotesEditor.clear();
+        }
         
         // Collapse the expanded form
         if (this.taskFormExpanded) {
@@ -337,6 +360,21 @@ class GTDTaskManager {
 
         content.appendChild(taskText);
 
+        // Task Notes (if present)
+        if (task.notes && task.notes.trim()) {
+            const notesContainer = document.createElement('div');
+            notesContainer.className = 'task-notes mt-2 p-2 bg-slate-800/50 rounded border-l-2 border-blue-500/30';
+            
+            // If notes contain HTML (from rich text editor), display as HTML, otherwise parse as markdown
+            if (task.notes.includes('<') && task.notes.includes('>')) {
+                notesContainer.innerHTML = task.notes;
+            } else {
+                notesContainer.innerHTML = marked.parse(task.notes);
+            }
+            
+            content.appendChild(notesContainer);
+        }
+
         // Progress Bar
         if (task.progress > 0) {
             const progressContainer = document.createElement('div');
@@ -524,12 +562,16 @@ class GTDTaskManager {
         this.currentEditingTask = task;
         
         document.getElementById('editTaskText').value = task.text;
-        document.getElementById('editTaskNotes').value = task.notes || '';
         document.getElementById('editTaskPriority').value = task.priority;
         document.getElementById('editTaskDueDate').value = task.dueDate ? task.dueDate.slice(0, 16) : '';
         document.getElementById('editTaskTags').value = task.tags ? task.tags.join(', ') : '';
         document.getElementById('editTaskProgress').value = task.progress || 0;
         document.getElementById('editProgressValue').textContent = `${task.progress || 0}%`;
+        
+        // Set rich text editor content
+        if (this.editTaskNotesEditor) {
+            this.editTaskNotesEditor.setContent(task.notes || '');
+        }
         
         this.showModal('editTaskModal');
     }
@@ -539,7 +581,7 @@ class GTDTaskManager {
         
         const updates = {
             text: document.getElementById('editTaskText').value.trim(),
-            notes: document.getElementById('editTaskNotes').value.trim(),
+            notes: this.editTaskNotesEditor ? this.editTaskNotesEditor.getContent() : '',
             priority: document.getElementById('editTaskPriority').value,
             dueDate: document.getElementById('editTaskDueDate').value || null,
             tags: document.getElementById('editTaskTags').value.split(',').map(tag => tag.trim()).filter(tag => tag),
@@ -783,7 +825,7 @@ class GTDTaskManager {
             const text = document.getElementById('newTaskInput').value;
             const priority = document.getElementById('taskPriority').value;
             const dueDate = document.getElementById('taskDueDate').value || null;
-            const notes = document.getElementById('newTaskNotes').value || '';
+            const notes = this.newTaskNotesEditor ? this.newTaskNotesEditor.getContent() : '';
             const tags = document.getElementById('newTaskTags').value
                 .split(',')
                 .map(tag => tag.trim())
@@ -799,7 +841,7 @@ class GTDTaskManager {
                 const text = document.getElementById('newTaskInput').value;
                 const priority = document.getElementById('taskPriority').value;
                 const dueDate = document.getElementById('taskDueDate').value || null;
-                const notes = document.getElementById('newTaskNotes').value || '';
+                const notes = this.newTaskNotesEditor ? this.newTaskNotesEditor.getContent() : '';
                 const tags = document.getElementById('newTaskTags').value
                     .split(',')
                     .map(tag => tag.trim())
