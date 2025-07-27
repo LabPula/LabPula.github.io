@@ -4,1842 +4,319 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GTD Task Manager</title>
-    <meta name="description" content="A comprehensive GTD (Getting Things Done) task manager for professors and academics">
-    <meta name="theme-color" content="#1a202c">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#1e293b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" sizes="192x192" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMjQiIGZpbGw9IiMxYTIwMmMiLz4KPHN2ZyB4PSI0OCIgeT0iNDgiIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNlMmU4ZjAiIHN0cm9rZS13aWR0aD0iMiI+CjxwYXRoIGQ9Im05IDEyIDIgMiA0LTQiLz4KPHN0cm9rZSBkPSJtMjEgMTItLjUgMy40MmEzIDMgMCAwIDEtMi45NSAyLjU4SDE0bC0yLTMuOTkgNC05aC00LjVjLS4yNSAwLS41MS4wNS0uNzQuMTFhMyAzIDAgMCAwLTEuOCAzLjY5TDcgMjEiLz4KPC9zdmc+Cjwvc3ZnPg==">
-    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMjQiIGZpbGw9IiMxYTIwMmMiLz4KPHN2ZyB4PSI0OCIgeT0iNDgiIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNlMmU4ZjAiIHN0cm9rZS13aWR0aD0iMiI+CjxwYXRoIGQ9Im05IDEyIDIgMiA0LTQiLz4KPHN0cm9rZSBkPSJtMjEgMTItLjUgMy40MmEzIDMgMCAwIDEtMi45NSAyLjU4SDE0bC0yLTMuOTkgNC05aC00LjVjLS4yNSAwLS41MS4wNS0uNzQuMTFhMyAzIDAgMCAwLTEuOCAzLjY5TDcgMjEiLz4KPC9zdmc+Cjwvc3ZnPg==">
-    <!-- Tailwind CSS CDN -->
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- TailwindCSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Marked.js for Markdown parsing -->
+    
+    <!-- Markdown Parser -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #1a202c 0%, #2d3748 50%, #1a202c 100%);
-            color: #e2e8f0; /* Light text */
-            display: flex;
-            justify-content: center;
-            align-items: flex-start; /* Align to top */
-            min-height: 100vh;
-            padding: 2rem;
-        }
-        .container {
-            background: rgba(45, 55, 72, 0.95); /* Semi-transparent container */
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 1rem;
-            padding: 2rem;
-            box-shadow: 0 20px 25px rgba(0, 0, 0, 0.3);
-            width: 100%;
-            max-width: 800px;
-        }
-        .task-item {
-            background: linear-gradient(145deg, #4a5568, #2d3748);
-            border-radius: 0.75rem;
-            padding: 1rem;
-            margin-bottom: 0.75rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            transition: all 0.3s ease-in-out;
-            border: 2px solid transparent;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .task-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
-            border-color: rgba(99, 179, 237, 0.3);
-        }
-        .task-item.completed {
-            opacity: 0.7;
-            text-decoration: line-through;
-        }
-        .task-item.due-soon {
-            border-color: #f6ad55; /* Orange border for tasks due soon */
-        }
-        .task-item.overdue {
-            border-color: #e53e3e; /* Red border for overdue tasks */
-        }
-        .task-main-row {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            flex-wrap: wrap; /* Allow wrapping on smaller screens */
-        }
-        .task-text-content {
-            flex-grow: 1;
-            min-width: 150px; /* Ensure text has space */
-        }
-        .task-text-content p {
-            margin: 0; /* Remove default paragraph margin from markdown */
-        }
-        .task-text-content a {
-            color: #63b3ed; /* Link color */
-            text-decoration: underline;
-        }
-        .task-text-content strong {
-            font-weight: bold;
-        }
-        .task-text-content em {
-            font-style: italic;
-        }
-        .subtasks-container {
-            margin-left: 2rem;
-            border-left: 2px solid #6b7280;
-            padding-left: 1rem;
-            padding-top: 0.5rem;
-            overflow: hidden; /* Hide overflow when folded */
-            transition: max-height 0.3s ease-out, opacity 0.3s ease-out; /* Smooth transition for folding */
-        }
-        .subtasks-container.folded {
-            max-height: 0;
-            padding-top: 0;
-            padding-bottom: 0;
-            opacity: 0;
-        }
-        select, input[type="text"], input[type="datetime-local"], textarea {
-            background-color: #2d3748;
-            border: 1px solid #6b7280;
-            color: #e2e8f0;
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-            flex-grow: 1;
-            min-width: 100px; /* Adjusted for better fit */
-        }
-        select {
-            appearance: none; /* Remove default arrow */
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='currentColor'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'%3E%3C/path%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 0.5rem center;
-            background-size: 1.5em;
-        }
-        button {
-            background: linear-gradient(145deg, #4299e1, #3182ce);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            font-weight: bold;
-            transition: all 0.3s ease-in-out;
-            white-space: nowrap;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            background: linear-gradient(145deg, #3182ce, #2c5aa0);
-        }
-        button.delete-btn {
-            background-color: #e53e3e; /* Red for delete */
-        }
-        button.delete-btn:hover {
-            background-color: #c53030;
-        }
-        button.add-subtask-btn {
-            background-color: #38b2ac; /* Teal for subtask */
-        }
-        button.add-subtask-btn:hover {
-            background-color: #2c7a7b;
-        }
-        button.move-btn {
-            background-color: #ed8936; /* Orange for move */
-            padding: 0.5rem 0.75rem;
-        }
-        button.move-btn:hover {
-            background-color: #dd6b20;
-        }
-        button.fold-btn {
-            background-color: #63b3ed; /* Light blue for fold */
-            padding: 0.5rem 0.75rem;
-        }
-        button.fold-btn:hover {
-            background-color: #4299e1;
-        }
-        button.archive-btn {
-            background-color: #a0aec0; /* Gray for archive */
-        }
-        button.archive-btn:hover {
-            background-color: #718096;
-        }
-        input[type="checkbox"] {
-            width: 1.25rem;
-            height: 1.25rem;
-            border-radius: 0.25rem;
-            border: 2px solid #a0aec0;
-            background-color: #2d3748;
-            appearance: none;
-            -webkit-appearance: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background-color 0.2s, border-color 0.2s;
-        }
-        input[type="checkbox"]:checked {
-            background-color: #48bb78; /* Green when checked */
-            border-color: #48bb78;
-        }
-        input[type="checkbox"]:checked::after {
-            content: '✔';
-            color: white;
-            font-size: 0.8rem;
-        }
-
-        /* Modal styles */
-        .modal {
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background-color: #2d3748;
-            padding: 2rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            width: 90%;
-            max-width: 500px; /* Increased max-width for notes modal */
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-        .modal-content input, .modal-content textarea {
-            width: calc(100% - 1rem); /* Adjust for padding */
-            margin-bottom: 0.5rem;
-        }
-        .modal-content button {
-            margin: 0.5rem;
-        }
-
-        /* Drag and Drop styles */
-        .task-item.dragging {
-            opacity: 0.5;
-            border: 2px dashed #63b3ed;
-        }
-        .drag-over {
-            border-top: 2px solid #48bb78 !important;
-        }
-        .drag-over-bottom {
-            border-bottom: 2px solid #48bb78 !important;
-        }
-
-        /* Print styles */
-        @media print {
-            body {
-                background-color: white;
-                color: black;
-                padding: 0;
-            }
-            .container {
-                box-shadow: none;
-                background-color: white;
-                padding: 0;
-                max-width: none;
-                width: 100%;
-            }
-            .flex-col, .sm\:flex-row, .gap-4, .mb-6, .hidden, .modal {
-                display: none !important;
-            }
-            .task-item {
-                background-color: #f0f0f0;
-                border: 1px solid #ccc;
-                color: black;
-                page-break-inside: avoid; /* Avoid breaking task items across pages */
-            }
-            .task-item.completed {
-                text-decoration: line-through;
-            }
-            .task-main-row {
-                flex-wrap: nowrap;
-            }
-            .task-text-content {
-                flex-grow: 1;
-            }
-            .subtasks-container {
-                border-left-color: #ccc;
-                margin-left: 1rem;
-                padding-left: 0.5rem;
-                max-height: none !important; /* Always show subtasks when printing */
-                opacity: 1 !important;
-            }
-            button, select, input[type="file"], input[type="text"], input[type="datetime-local"] {
-                display: none !important;
-            }
-            /* Show checkbox and task text */
-            input[type="checkbox"] {
-                display: inline-block !important;
-                width: 1rem;
-                height: 1rem;
-                margin-right: 0.5rem;
-                vertical-align: middle;
-            }
-            .task-main-row > span { /* Hide created date */
-                display: none;
-            }
-            .task-main-row .task-text-content {
-                display: block;
-            }
-        }
-
-        /* PWA specific styles */
-        @media (display-mode: standalone) {
-            body {
-                padding-top: env(safe-area-inset-top);
-                padding-left: env(safe-area-inset-left);
-                padding-right: env(safe-area-inset-right);
-                padding-bottom: env(safe-area-inset-bottom);
-            }
-            
-            .container {
-                margin-top: 0;
-            }
-        }
-
-        /* Mobile optimizations */
-        @media (max-width: 768px) {
-            body {
-                padding: 1rem;
-            }
-            
-            .container {
-                padding: 1rem;
-            }
-            
-            .task-main-row {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.5rem;
-            }
-            
-            .task-main-row .flex {
-                width: 100%;
-                justify-content: space-between;
-            }
-        }
-
-        /* Better touch targets for mobile */
-        @media (pointer: coarse) {
-            button {
-                min-height: 44px;
-                min-width: 44px;
-            }
-            
-            input[type="checkbox"] {
-                min-height: 24px;
-                min-width: 24px;
-            }
-            
-            select, input[type="text"], input[type="datetime-local"], textarea {
-                min-height: 44px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1 class="text-3xl font-bold text-center mb-6">GTD Task Manager</h1>
-
-        <div class="flex flex-col sm:flex-row gap-4 mb-6">
-            <input type="text" id="newTaskInput" placeholder="Add new tasks (separate with ';') or press Enter" class="flex-grow">
-            <button id="addTaskBtn" class="whitespace-nowrap">Add Task(s)</button>
-        </div>
-
-        <div class="flex flex-wrap gap-4 mb-6 items-center">
-            <input type="text" id="searchTasksInput" placeholder="Search tasks..." class="flex-grow">
-            <select id="filterTagsSelect" class="flex-shrink-0">
-                <option value="">All Tags</option>
-            </select>
-            <select id="filterStatusSelect" class="flex-shrink-0">
-                <option value="">All Status</option>
-                <option value="completed">Completed</option>
-                <option value="pending">Pending</option>
-                <option value="overdue">Overdue</option>
-                <option value="due-soon">Due Soon</option>
-            </select>
-            <select id="filterPrioritySelect" class="flex-shrink-0">
-                <option value="">All Priorities</option>
-                <option value="Important-Urgent">Important-Urgent</option>
-                <option value="Important-Non Urgent">Important-Non Urgent</option>
-                <option value="Not Important-Urgent">Not Important-Urgent</option>
-                <option value="Not Important-Non Urgent">Not Important-Non Urgent</option>
-            </select>
-            <button id="showArchivedBtn" class="bg-gray-600 hover:bg-gray-700">Show Archived</button>
-            <button id="hideArchivedBtn" class="bg-gray-600 hover:bg-gray-700 hidden">Hide Archived</button>
-        </div>
-
-        <div class="flex flex-col sm:flex-row gap-4 mb-6">
-            <button id="saveTasksBtn" class="bg-purple-600 hover:bg-purple-700">Save Tasks</button>
-            <input type="file" id="loadTasksInput" accept=".json" class="hidden">
-            <button id="loadTasksBtn" class="bg-indigo-600 hover:bg-indigo-700">Load Tasks</button>
-            <button id="printTasksBtn" class="bg-green-600 hover:bg-green-700">Print Tasks</button>
-            <button id="exportCsvBtn" class="bg-teal-600 hover:bg-teal-700">Export CSV</button>
-            <button id="clearCompletedBtn" class="bg-red-600 hover:bg-red-700">Clear Completed</button>
-            <button id="toggleStatsBtn" class="bg-blue-600 hover:bg-blue-700">Show Stats</button>
-        </div>
-
-        <!-- Statistics Dashboard -->
-        <div id="statsPanel" class="hidden mb-6 p-4 bg-gray-700 rounded-lg">
-            <h3 class="text-lg font-bold mb-3">Task Statistics</h3>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                <div class="bg-gray-600 p-3 rounded">
-                    <div class="text-2xl font-bold text-blue-400" id="totalTasks">0</div>
-                    <div class="text-sm text-gray-300">Total Tasks</div>
-                </div>
-                <div class="bg-gray-600 p-3 rounded">
-                    <div class="text-2xl font-bold text-green-400" id="completedTasks">0</div>
-                    <div class="text-sm text-gray-300">Completed</div>
-                </div>
-                <div class="bg-gray-600 p-3 rounded">
-                    <div class="text-2xl font-bold text-red-400" id="overdueTasks">0</div>
-                    <div class="text-sm text-gray-300">Overdue</div>
-                </div>
-                <div class="bg-gray-600 p-3 rounded">
-                    <div class="text-2xl font-bold text-yellow-400" id="dueSoonTasks">0</div>
-                    <div class="text-sm text-gray-300">Due Soon</div>
-                </div>
-            </div>
-        </div>
-
-        <div id="tasksList" class="space-y-4">
-            <!-- Tasks will be rendered here -->
-            <div id="emptyState" class="text-center py-12 text-gray-400 hidden">
-                <div class="text-6xl mb-4">📝</div>
-                <h3 class="text-xl font-semibold mb-2">No tasks found</h3>
-                <p class="text-gray-500">Add your first task or adjust your filters</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Custom Modal for Project Name Input -->
-    <div id="projectNameModal" class="modal hidden">
-        <div class="modal-content">
-            <h2 class="text-xl font-bold mb-4">Enter Project Name</h2>
-            <input type="text" id="projectNameInput" placeholder="e.g., Personal Goals, Work Project A">
-            <button id="saveProjectNameBtn">Save</button>
-            <button id="cancelProjectNameBtn" class="delete-btn">Cancel</button>
-        </div>
-    </div>
-
-    <!-- Custom Modal for Notes/Description -->
-    <div id="notesModal" class="modal hidden">
-        <div class="modal-content">
-            <h2 class="text-xl font-bold mb-4">Task Notes</h2>
-            <textarea id="notesInput" class="w-full h-32 p-2 rounded-md bg-gray-700 border border-gray-600 text-white" placeholder="Add detailed notes here. Markdown is supported."></textarea>
-            <div class="flex justify-center gap-2">
-                <button onclick="insertMarkdown('bold')"><b>B</b></button>
-                <button onclick="insertMarkdown('italic')"><i>I</i></button>
-                <button onclick="insertMarkdown('link')">Link</button>
-            </div>
-            <button id="saveNotesBtn">Save Notes</button>
-            <button id="cancelNotesBtn" class="delete-btn">Cancel</button>
-        </div>
-    </div>
-
-    <script>
-        // Global arrays to store tasks and current project name
-        let tasks = [];
-        let currentProjectName = '';
-        let showArchived = false; // State for showing archived tasks
-
-        // Drag and drop variables
-        let draggedTask = null;
-        let draggedTaskParentId = null; // To track parent of dragged task
-        let dropTargetElement = null; // Element being dragged over
-
-        // Function to generate a unique ID for tasks
-        function generateId() {
-            return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-        }
-
-        // Function to format date for display
-        function formatDateTime(date) {
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
-            const seconds = String(date.getSeconds()).padStart(2, '0');
-            return `${year}-${month}-${day}, ${hours}:${minutes}:${seconds}`;
-        }
-
-        // --- Local Storage Persistence ---
-        function saveTasksToLocalStorage() {
-            localStorage.setItem('gtdTasks', JSON.stringify(tasks));
-            localStorage.setItem('gtdProjectName', currentProjectName);
-        }
-
-        function loadTasksFromLocalStorage() {
-            const storedTasks = localStorage.getItem('gtdTasks');
-            const storedProjectName = localStorage.getItem('gtdProjectName');
-
-            if (storedTasks) {
-                tasks = JSON.parse(storedTasks);
-            }
-            if (storedProjectName) {
-                currentProjectName = storedProjectName;
-            }
-        }
-
-        // --- Task Rendering ---
-        function renderTask(task, parentElement, isSubtask = false) {
-            const taskItem = document.createElement('div');
-            taskItem.id = `task-${task.id}`;
-            taskItem.classList.add('task-item', 'relative');
-            taskItem.draggable = true; // Enable drag for all task items
-            taskItem.dataset.taskId = task.id; // Store task ID for drag/drop
-            taskItem.dataset.parentId = parentElement.id.replace('task-', '') || 'root'; // Store parent ID
-
-            if (task.isCompleted) {
-                taskItem.classList.add('completed');
-            }
-
-            // Highlight tasks based on due date
-            if (task.dueDate && !task.isCompleted) {
-                const now = new Date();
-                const dueDate = new Date(task.dueDate);
-                const diffTime = dueDate.getTime() - now.getTime();
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-                if (diffDays <= 0) {
-                    taskItem.classList.add('overdue');
-                } else if (diffDays <= 3) { // Due in 3 days or less
-                    taskItem.classList.add('due-soon');
-                }
-            }
-
-            const mainRow = document.createElement('div');
-            mainRow.classList.add('task-main-row');
-
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.checked = task.isCompleted;
-            checkbox.addEventListener('change', () => {
-                task.isCompleted = checkbox.checked;
-                // If a parent task is completed, mark all subtasks as completed
-                if (task.isCompleted && task.subtasks) {
-                    markAllSubtasksCompleted(task.subtasks, true);
-                } else if (!task.isCompleted && task.subtasks) {
-                    // If a parent task is uncompleted, mark all subtasks as uncompleted
-                    markAllSubtasksCompleted(task.subtasks, false);
-                }
-                renderTasks(); // Re-render to update styles and potentially subtasks
-                saveTasksToLocalStorage();
-            });
-            mainRow.appendChild(checkbox);
-
-            // Fold/Unfold button for tasks with subtasks
-            if (task.subtasks && task.subtasks.length > 0) {
-                const foldBtn = document.createElement('button');
-                foldBtn.classList.add('fold-btn', 'px-3', 'py-2', 'text-sm');
-                foldBtn.textContent = task.isFolded ? '▶' : '▼'; // Use triangle icons
-                foldBtn.title = task.isFolded ? 'Unfold Subtasks' : 'Fold Subtasks';
-                foldBtn.addEventListener('click', () => {
-                    task.isFolded = !task.isFolded;
-                    renderTasks(); // Re-render to apply fold/unfold state
-                    saveTasksToLocalStorage();
-                });
-                mainRow.appendChild(foldBtn);
-            }
-
-            const taskTextContent = document.createElement('div');
-            taskTextContent.classList.add('task-text-content');
-            taskTextContent.innerHTML = marked.parse(task.text); // Use marked.js for markdown
-            mainRow.appendChild(taskTextContent);
-
-            // Calendar icon for Due Date
-            const calendarIconBtn = document.createElement('button');
-            calendarIconBtn.classList.add('flex-shrink-0', 'text-gray-400', 'hover:text-white', 'p-1', 'rounded-full');
-            calendarIconBtn.innerHTML = <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
-            </svg>;
-            calendarIconBtn.title = 'Set Due Date';
-            mainRow.appendChild(calendarIconBtn);
-
-            const dueDateInput = document.createElement('input');
-            dueDateInput.type = 'datetime-local';
-            dueDateInput.value = task.dueDate ? task.dueDate.substring(0, 16) : '';
-            dueDateInput.title = 'Set Due Date';
-            dueDateInput.classList.add('hidden', 'flex-shrink-0', 'w-auto'); /* Added w-auto to make it compact when visible */
-            calendarIconBtn.addEventListener('click', (e) => {
-                e.stopPropagation(); // Prevent mainRow click if any
-                dueDateInput.classList.toggle('hidden');
-                if (!dueDateInput.classList.contains('hidden')) {
-                    dueDateInput.focus();
-                }
-            });
-            dueDateInput.addEventListener('change', () => {
-                task.dueDate = dueDateInput.value;
-                renderTasks();
-                saveTasksToLocalStorage();
-                dueDateInput.classList.add('hidden'); // Hide after selection
-            });
-            mainRow.appendChild(dueDateInput);
-
-            // Tags button
-            const tagsBtn = document.createElement('button');
-            tagsBtn.classList.add('bg-gray-500', 'hover:bg-gray-600', 'px-3', 'py-2', 'text-sm');
-            tagsBtn.textContent = 'Tags';
-            tagsBtn.title = 'Add/Edit Tags';
-            tagsBtn.addEventListener('click', () => {
-                showPromptModal("Enter tags (comma-separated):", (tagText) => {
-                    if (tagText !== null) { // Allow empty string to clear tags
-                        task.tags = tagText.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
-                        updateFilterOptions();
-                        renderTasks();
-                        saveTasksToLocalStorage();
-                    }
-                }, task.tags ? task.tags.join(', ') : ''); // Pre-fill with current tags
-            });
-            mainRow.appendChild(tagsBtn);
-
-
-            const metaInfo = document.createElement('div');
-            metaInfo.classList.add('flex', 'flex-col', 'text-sm', 'text-gray-400', 'whitespace-nowrap', 'flex-shrink-0');
-
-            const createdAtSpan = document.createElement('span');
-            createdAtSpan.textContent = `Created: ${task.createdAt}`;
-            metaInfo.appendChild(createdAtSpan);
-
-            if (task.dueDate) {
-                const dueDateDisplaySpan = document.createElement('span');
-                dueDateDisplaySpan.textContent = `Due: ${formatDateTime(new Date(task.dueDate))}`;
-                metaInfo.appendChild(dueDateDisplaySpan);
-            }
-            if (task.tags && task.tags.length > 0) {
-                const tagsDisplaySpan = document.createElement('span');
-                tagsDisplaySpan.textContent = `Tags: ${task.tags.join(', ')}`;
-                metaInfo.appendChild(tagsDisplaySpan);
-            }
-            // Context display removed
-            mainRow.appendChild(metaInfo);
-
-            const gtdSelect = document.createElement('select');
-            gtdSelect.classList.add('flex-shrink-0');
-            const categories = [
-                "Important-Urgent",
-                "Important-Non Urgent",
-                "Not Important-Urgent",
-                "Not Important-Non Urgent"
-            ];
-            categories.forEach(category => {
-                const option = document.createElement('option');
-                option.value = category;
-                option.textContent = category;
-                gtdSelect.appendChild(option);
-            });
-            gtdSelect.value = task.gtdCategory;
-            gtdSelect.addEventListener('change', () => {
-                task.gtdCategory = gtdSelect.value;
-                renderTasks(); // Re-render to apply new sort order
-                saveTasksToLocalStorage();
-            });
-            mainRow.appendChild(gtdSelect);
-
-            const actionButtons = document.createElement('div');
-            actionButtons.classList.add('flex', 'gap-2', 'flex-shrink-0');
-
-            const addSubtaskBtn = document.createElement('button');
-            addSubtaskBtn.classList.add('add-subtask-btn', 'px-3', 'py-2', 'text-sm');
-            addSubtaskBtn.textContent = 'Add Subtask';
-            addSubtaskBtn.addEventListener('click', () => {
-                showPromptModal("Enter subtask text:", (subtaskText) => {
-                    if (subtaskText) {
-                        const newSubtask = {
-                            id: generateId(),
-                            text: subtaskText,
-                            isCompleted: false,
-                            gtdCategory: "Important-Non Urgent", // Default for subtasks
-                            subtasks: [],
-                            isFolded: false,
-                            dueDate: null,
-                            tags: [],
-                            notes: '',
-                            progress: 0,
-                            isArchived: false,
-                            createdAt: formatDateTime(new Date())
-                        };
-                        task.subtasks.push(newSubtask);
-                        renderTasks();
-                        saveTasksToLocalStorage();
-                    }
-                });
-            });
-            actionButtons.appendChild(addSubtaskBtn);
-
-            const moveUpBtn = document.createElement('button');
-            moveUpBtn.classList.add('move-btn', 'px-3', 'py-2', 'text-sm');
-            moveUpBtn.textContent = '↑';
-            moveUpBtn.addEventListener('click', () => {
-                moveTask(task.id, 'up');
-                saveTasksToLocalStorage();
-            });
-            actionButtons.appendChild(moveUpBtn);
-
-            const moveDownBtn = document.createElement('button');
-            moveDownBtn.classList.add('move-btn', 'px-3', 'py-2', 'text-sm');
-            moveDownBtn.textContent = '↓';
-            moveDownBtn.addEventListener('click', () => {
-                moveTask(task.id, 'down');
-                saveTasksToLocalStorage();
-            });
-            actionButtons.appendChild(moveDownBtn);
-
-            const archiveBtn = document.createElement('button');
-            archiveBtn.classList.add('archive-btn', 'px-3', 'py-2', 'text-sm');
-            archiveBtn.textContent = task.isArchived ? 'Unarchive' : 'Archive';
-            archiveBtn.addEventListener('click', () => {
-                showConfirmModal(`Are you sure you want to ${task.isArchived ? 'unarchive' : 'archive'} this task?`, () => {
-                    archiveTask(task.id, !task.isArchived);
-                    saveTasksToLocalStorage();
-                });
-            });
-            actionButtons.appendChild(archiveBtn);
-
-            const deleteBtn = document.createElement('button');
-            deleteBtn.classList.add('delete-btn', 'px-3', 'py-2', 'text-sm');
-            deleteBtn.textContent = 'X';
-            deleteBtn.addEventListener('click', () => {
-                showConfirmModal("Are you sure you want to delete this task?", () => {
-                    deleteTask(task.id);
-                    saveTasksToLocalStorage();
-                });
-            });
-            actionButtons.appendChild(deleteBtn);
-
-            mainRow.appendChild(actionButtons);
-            taskItem.appendChild(mainRow);
-
-            // Notes button (moved from detailInputs)
-            const notesBtn = document.createElement('button');
-            notesBtn.classList.add('bg-blue-500', 'hover:bg-blue-600', 'px-3', 'py-2', 'text-sm', 'mt-2');
-            notesBtn.textContent = 'Notes';
-            notesBtn.title = 'Add/Edit Notes';
-            notesBtn.addEventListener('click', () => {
-                openNotesModal(task);
-            });
-            taskItem.appendChild(notesBtn);
-
-
-            // Progress slider container (new placement)
-            const progressContainer = document.createElement('div');
-            progressContainer.classList.add('flex', 'items-center', 'gap-2', 'mt-2', 'w-full');
-
-            const progressLabel = document.createElement('span');
-            progressLabel.classList.add('text-sm', 'text-gray-400');
-            progressLabel.innerHTML = `Progress: <span id="progressValue-${task.id}">${task.progress}%</span>`;
-            progressContainer.appendChild(progressLabel);
-
-            const progressInput = document.createElement('input');
-            progressInput.type = 'range';
-            progressInput.min = '0';
-            progressInput.max = '100';
-            progressInput.step = '5';
-            progressInput.value = task.progress !== undefined ? task.progress : 0;
-            progressInput.title = `Progress: ${progressInput.value}%`;
-            progressInput.classList.add('flex-grow'); // Make it take available width
-            progressInput.addEventListener('input', () => {
-                task.progress = parseInt(progressInput.value);
-                progressLabel.querySelector(`#progressValue-${task.id}`).textContent = `${progressInput.value}%`;
-                progressInput.title = `Progress: ${progressInput.value}%`;
-                saveTasksToLocalStorage();
-            });
-            progressContainer.appendChild(progressInput);
-            taskItem.appendChild(progressContainer); // Append to taskItem
-
-
-            // Render subtasks if they exist and the parent task is not folded
-            if (task.subtasks && task.subtasks.length > 0) {
-                const subtasksContainer = document.createElement('div');
-                subtasksContainer.classList.add('subtasks-container');
-                if (task.isFolded) {
-                    subtasksContainer.classList.add('folded');
-                }
-
-                task.subtasks.forEach(subtask => {
-                    renderTask(subtask, subtasksContainer, true);
-                });
-                taskItem.appendChild(subtasksContainer);
-            }
-
-            parentElement.appendChild(taskItem);
-        }
-
-        // Helper function to mark all subtasks as completed/uncompleted
-        function markAllSubtasksCompleted(subtasksArray, completedStatus) {
-            subtasksArray.forEach(subtask => {
-                subtask.isCompleted = completedStatus;
-                if (subtask.subtasks && subtask.subtasks.length > 0) {
-                    markAllSubtasksCompleted(subtask.subtasks, completedStatus);
-                }
-            });
-        }
-
-        // --- Filtering and Sorting ---
-        function sortTasks(tasksArray) {
-            const categoryOrder = {
-                "Important-Urgent": 1,
-                "Important-Non Urgent": 2,
-                "Not Important-Urgent": 3,
-                "Not Important-Non Urgent": 4
-            };
-
-            tasksArray.sort((a, b) => {
-                // Sort by completion status (completed tasks at the bottom)
-                if (a.isCompleted && !b.isCompleted) return 1;
-                if (!a.isCompleted && b.isCompleted) return -1;
-
-                // Then by GTD category
-                const categoryA = categoryOrder[a.gtdCategory] || 5; // Default to lowest priority if category not found
-                const categoryB = categoryOrder[b.gtdCategory] || 5;
-                if (categoryA !== categoryB) {
-                    return categoryA - categoryB;
-                }
-
-                // Then by due date (earliest first, nulls last)
-                if (a.dueDate && b.dueDate) {
-                    return new Date(a.dueDate) - new Date(b.dueDate);
-                }
-                if (a.dueDate) return -1; // a has due date, b doesn't
-                if (b.dueDate) return 1;  // b has due date, a doesn't
-
-                // Finally, by creation date (oldest first)
-                return new Date(a.createdAt) - new Date(b.createdAt);
-            });
-
-            tasksArray.forEach(task => {
-                if (task.subtasks && task.subtasks.length > 0) {
-                    sortTasks(task.subtasks);
-                }
-            });
-        }
-
-        function filterTasks(tasksArray, searchText, selectedTag, selectedStatus, selectedPriority) {
-            return tasksArray.filter(task => {
-                const matchesSearch = !searchText ||
-                                      task.text.toLowerCase().includes(searchText) ||
-                                      (task.tags && task.tags.some(tag => tag.toLowerCase().includes(searchText))) ||
-                                      (task.notes && task.notes.toLowerCase().includes(searchText));
-
-                const matchesTag = !selectedTag || (task.tags && task.tags.includes(selectedTag));
-                const matchesArchived = showArchived || !task.isArchived;
-                const matchesPriority = !selectedPriority || task.gtdCategory === selectedPriority;
-
-                let matchesStatus = true;
-                if (selectedStatus) {
-                    switch (selectedStatus) {
-                        case 'completed':
-                            matchesStatus = task.isCompleted;
-                            break;
-                        case 'pending':
-                            matchesStatus = !task.isCompleted;
-                            break;
-                        case 'overdue':
-                            if (task.dueDate && !task.isCompleted) {
-                                const now = new Date();
-                                const dueDate = new Date(task.dueDate);
-                                matchesStatus = dueDate < now;
-                            } else {
-                                matchesStatus = false;
-                            }
-                            break;
-                        case 'due-soon':
-                            if (task.dueDate && !task.isCompleted) {
-                                const now = new Date();
-                                const dueDate = new Date(task.dueDate);
-                                const diffTime = dueDate.getTime() - now.getTime();
-                                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                                matchesStatus = diffDays > 0 && diffDays <= 3;
-                            } else {
-                                matchesStatus = false;
-                            }
-                            break;
-                    }
-                }
-
-                return matchesSearch && matchesTag && matchesArchived && matchesPriority && matchesStatus;
-            }).map(task => {
-                // Recursively filter subtasks
-                const filteredSubtasks = filterTasks(task.subtasks, searchText, selectedTag, selectedStatus, selectedPriority);
-                return { ...task, subtasks: filteredSubtasks };
-            });
-        }
-
-        function updateFilterOptions() {
-            const allTags = new Set();
-
-            function collectOptions(tasksArray) {
-                tasksArray.forEach(task => {
-                    if (task.tags) {
-                        task.tags.forEach(tag => allTags.add(tag));
-                    }
-                    if (task.subtasks) {
-                        collectOptions(task.subtasks);
-                    }
-                });
-            }
-            collectOptions(tasks);
-
-            const filterTagsSelect = document.getElementById('filterTagsSelect');
-            filterTagsSelect.innerHTML = '<option value="">All Tags</option>';
-            Array.from(allTags).sort().forEach(tag => {
-                const option = document.createElement('option');
-                option.value = tag;
-                option.textContent = tag;
-                filterTagsSelect.appendChild(option);
-            });
-            // Restore selected value after updating options
-            filterTagsSelect.value = filterTagsSelect.dataset.selectedValue || '';
-        }
-
-        // Main function to render all tasks
-        function renderTasks() {
-            const tasksList = document.getElementById('tasksList');
-            const emptyState = document.getElementById('emptyState');
-            tasksList.innerHTML = ''; // Clear existing tasks
-
-            const searchText = document.getElementById('searchTasksInput').value.toLowerCase();
-            const selectedTag = document.getElementById('filterTagsSelect').value;
-            const selectedStatus = document.getElementById('filterStatusSelect').value;
-            const selectedPriority = document.getElementById('filterPrioritySelect').value;
-
-            // Filter tasks first
-            const filteredTasks = filterTasks(tasks, searchText, selectedTag, selectedStatus, selectedPriority);
-
-            // Then sort the filtered tasks
-            sortTasks(filteredTasks);
-
-            if (filteredTasks.length === 0) {
-                emptyState.classList.remove('hidden');
-            } else {
-                emptyState.classList.add('hidden');
-                filteredTasks.forEach(task => {
-                    renderTask(task, tasksList);
-                });
-            }
-            
-            // Update page title with task count
-            const pendingCount = calculateTaskStatistics(tasks).total - calculateTaskStatistics(tasks).completed;
-            document.title = pendingCount > 0 ? `(${pendingCount}) GTD Task Manager` : 'GTD Task Manager';
-            
-            // Update statistics if visible
-            if (!document.getElementById('statsPanel').classList.contains('hidden')) {
-                updateStatistics();
-            }
-            
-            saveTasksToLocalStorage(); // Save after every render
-        }
-
-        // --- Task Actions ---
-        function addNewTasks() {
-            const newTaskInput = document.getElementById('newTaskInput');
-            const inputContent = newTaskInput.value.trim();
-
-            if (inputContent) {
-                const newTasksTexts = inputContent.split(';').map(text => text.trim()).filter(text => text !== '');
-
-                newTasksTexts.forEach(taskText => {
-                    const newTask = {
-                        id: generateId(),
-                        text: taskText,
-                        isCompleted: false,
-                        gtdCategory: "Important-Non Urgent", // Default category
-                        subtasks: [],
-                        isFolded: false,
-                        dueDate: null,
-                        tags: [],
-                        notes: '',
-                        progress: 0,
-                        isArchived: false,
-                        createdAt: formatDateTime(new Date())
-                    };
-                    tasks.push(newTask);
-                });
-
-                newTaskInput.value = ''; // Clear input
-                updateFilterOptions(); // Update tags/contexts in filter dropdowns
-                renderTasks();
-            }
-        }
-
-        // Function to find and delete a task recursively
-        function deleteTask(taskId, tasksArray = tasks) {
-            for (let i = 0; i < tasksArray.length; i++) {
-                if (tasksArray[i].id === taskId) {
-                    tasksArray.splice(i, 1);
-                    renderTasks();
-                    return true;
-                }
-                if (tasksArray[i].subtasks && tasksArray[i].subtasks.length > 0) {
-                    if (deleteTask(taskId, tasksArray[i].subtasks)) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        // Function to find and move a task recursively (for up/down buttons)
-        function moveTask(taskId, direction, tasksArray = tasks) {
-            for (let i = 0; i < tasksArray.length; i++) {
-                if (tasksArray[i].id === taskId) {
-                    if (direction === 'up' && i > 0) {
-                        [tasksArray[i], tasksArray[i - 1]] = [tasksArray[i - 1], tasksArray[i]];
-                        renderTasks();
-                        return true;
-                    } else if (direction === 'down' && i < tasksArray.length - 1) {
-                        [tasksArray[i], tasksArray[i + 1]] = [tasksArray[i + 1], tasksArray[i]];
-                        renderTasks();
-                        return true;
-                    }
-                    return false; // Task found but cannot move
-                }
-                if (tasksArray[i].subtasks && tasksArray[i].subtasks.length > 0) {
-                    if (moveTask(taskId, direction, tasksArray[i].subtasks)) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        // Function to find and archive/unarchive a task recursively
-        function archiveTask(taskId, status, tasksArray = tasks) {
-            for (let i = 0; i < tasksArray.length; i++) {
-                if (tasksArray[i].id === taskId) {
-                    tasksArray[i].isArchived = status;
-                    renderTasks();
-                    return true;
-                }
-                if (tasksArray[i].subtasks && tasksArray[i].subtasks.length > 0) {
-                    if (archiveTask(taskId, status, tasksArray[i].subtasks)) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        // --- Custom Modals ---
-        function showPromptModal(message, callback, initialValue = '') {
-            const modal = document.createElement('div');
-            modal.classList.add('modal');
-            modal.innerHTML = `
-                <div class="modal-content">
-                    <h2 class="text-xl font-bold mb-4">${message}</h2>
-                    <input type="text" id="modalInput" placeholder="Enter text here..." value="${initialValue}">
-                    <button id="modalConfirmBtn">OK</button>
-                    <button id="modalCancelBtn" class="delete-btn">Cancel</button>
-                </div>
-            `;
-            document.body.appendChild(modal);
-
-            const modalInput = document.getElementById('modalInput');
-            const modalConfirmBtn = document.getElementById('modalConfirmBtn');
-            const modalCancelBtn = document.getElementById('modalCancelBtn');
-
-            modalInput.focus();
-
-            modalConfirmBtn.addEventListener('click', () => {
-                callback(modalInput.value);
-                document.body.removeChild(modal);
-            });
-
-            modalCancelBtn.addEventListener('click', () => {
-                callback(null);
-                document.body.removeChild(modal);
-            });
-
-            modalInput.addEventListener('keydown', (event) => {
-                if (event.key === 'Enter') {
-                    modalConfirmBtn.click();
-                }
-            });
-        }
-
-        function showConfirmModal(message, onConfirm) {
-            const modal = document.createElement('div');
-            modal.classList.add('modal');
-            modal.innerHTML = `
-                <div class="modal-content">
-                    <h2 class="text-xl font-bold mb-4">${message}</h2>
-                    <button id="modalConfirmBtn">Yes</button>
-                    <button id="modalCancelBtn" class="delete-btn">No</button>
-                </div>
-            `;
-            document.body.appendChild(modal);
-
-            const modalConfirmBtn = document.getElementById('modalConfirmBtn');
-            const modalCancelBtn = document.getElementById('modalCancelBtn');
-
-            modalConfirmBtn.addEventListener('click', () => {
-                onConfirm();
-                document.body.removeChild(modal);
-            });
-
-            modalCancelBtn.addEventListener('click', () => {
-                document.body.removeChild(modal);
-            });
-        }
-
-        let currentTaskForNotes = null; // To store the task being edited in the notes modal
-
-        function openNotesModal(task) {
-            currentTaskForNotes = task;
-            const notesModal = document.getElementById('notesModal');
-            const notesInput = document.getElementById('notesInput');
-            notesInput.value = task.notes || '';
-            notesModal.classList.remove('hidden');
-            notesInput.focus();
-        }
-
-        document.getElementById('saveNotesBtn').addEventListener('click', () => {
-            if (currentTaskForNotes) {
-                currentTaskForNotes.notes = document.getElementById('notesInput').value;
-                document.getElementById('notesModal').classList.add('hidden');
-                currentTaskForNotes = null;
-                saveTasksToLocalStorage();
-            }
-        });
-
-        document.getElementById('cancelNotesBtn').addEventListener('click', () => {
-            document.getElementById('notesModal').classList.add('hidden');
-            currentTaskForNotes = null;
-        });
-
-        // Markdown helper functions for notes modal
-        function insertMarkdown(type) {
-            const textarea = document.getElementById('notesInput');
-            const start = textarea.selectionStart;
-            const end = textarea.selectionEnd;
-            const selectedText = textarea.value.substring(start, end);
-            let newText = '';
-
-            switch (type) {
-                case 'bold':
-                    newText = `**${selectedText}**`;
-                    break;
-                case 'italic':
-                    newText = `*${selectedText}*`;
-                    break;
-                case 'link':
-                    const url = prompt("Enter URL:", "https://example.com");
-                    if (url) {
-                        newText = `[${selectedText || 'Link Text'}](${url})`;
-                    } else {
-                        return; // Don't insert if no URL
-                    }
-                    break;
-            }
-            textarea.value = textarea.value.substring(0, start) + newText + textarea.value.substring(end);
-            textarea.focus();
-            textarea.selectionEnd = start + newText.length; // Place cursor after inserted text
-        }
-        // Make insertMarkdown globally accessible
-        window.insertMarkdown = insertMarkdown;
-
-
-        // --- Event Listeners ---
-        document.getElementById('addTaskBtn').addEventListener('click', addNewTasks);
-        document.getElementById('newTaskInput').addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                addNewTasks();
-            }
-        });
-
-        document.getElementById('searchTasksInput').addEventListener('input', renderTasks);
-
-        document.getElementById('filterTagsSelect').addEventListener('change', (event) => {
-            event.target.dataset.selectedValue = event.target.value; // Store selected value
-            renderTasks();
-        });
-
-        document.getElementById('filterStatusSelect').addEventListener('change', renderTasks);
-        document.getElementById('filterPrioritySelect').addEventListener('change', renderTasks);
-        // Context filter select removed
-        // document.getElementById('filterContextsSelect').addEventListener('change', (event) => {
-        //     event.target.dataset.selectedValue = event.target.value;
-        //     renderTasks();
-        // });
-
-        document.getElementById('showArchivedBtn').addEventListener('click', () => {
-            showArchived = true;
-            document.getElementById('showArchivedBtn').classList.add('hidden');
-            document.getElementById('hideArchivedBtn').classList.remove('hidden');
-            renderTasks();
-        });
-
-        document.getElementById('hideArchivedBtn').addEventListener('click', () => {
-            showArchived = false;
-            document.getElementById('hideArchivedBtn').classList.add('hidden');
-            document.getElementById('showArchivedBtn').classList.remove('hidden');
-            renderTasks();
-        });
-
-        // --- Save/Load to File ---
-        document.getElementById('saveTasksBtn').addEventListener('click', () => {
-            if (!currentProjectName) {
-                const projectNameModal = document.getElementById('projectNameModal');
-                const projectNameInput = document.getElementById('projectNameInput');
-                const saveProjectNameBtn = document.getElementById('saveProjectNameBtn');
-                const cancelProjectNameBtn = document.getElementById('cancelProjectNameBtn');
-
-                projectNameModal.classList.remove('hidden');
-                projectNameInput.focus();
-
-                const handleSave = () => {
-                    const name = projectNameInput.value.trim();
-                    if (name) {
-                        currentProjectName = name;
-                        projectNameModal.classList.add('hidden');
-                        saveTasksToFile();
-                        saveTasksToLocalStorage(); // Also save to local storage
-                    } else {
-                        showPromptModal("Project name cannot be empty. Please enter a name.", () => {});
-                    }
-                    saveProjectNameBtn.removeEventListener('click', handleSave);
-                    cancelProjectNameBtn.removeEventListener('click', handleCancel);
-                    projectNameInput.removeEventListener('keydown', handleEnter);
-                };
-
-                const handleCancel = () => {
-                    projectNameModal.classList.add('hidden');
-                    saveProjectNameBtn.removeEventListener('click', handleSave);
-                    cancelProjectNameBtn.removeEventListener('click', handleCancel);
-                    projectNameInput.removeEventListener('keydown', handleEnter);
-                };
-
-                const handleEnter = (event) => {
-                    if (event.key === 'Enter') {
-                        handleSave();
-                    }
-                };
-
-                saveProjectNameBtn.addEventListener('click', handleSave);
-                cancelProjectNameBtn.addEventListener('click', handleCancel);
-                projectNameInput.addEventListener('keydown', handleEnter);
-
-            } else {
-                saveTasksToFile();
-                saveTasksToLocalStorage(); // Also save to local storage
-            }
-        });
-
-        function saveTasksToFile() {
-            const dataToSave = {
-                projectName: currentProjectName,
-                tasks: tasks
-            };
-            const dataStr = JSON.stringify(dataToSave, null, 2);
-            const blob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `tasks-${currentProjectName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        document.getElementById('loadTasksBtn').addEventListener('click', () => {
-            document.getElementById('loadTasksInput').click();
-        });
-
-        document.getElementById('loadTasksInput').addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try {
-                        const loadedData = JSON.parse(e.target.result);
-                        // Ensure backward compatibility for context field
-                        function migrateTask(task) {
-                            if (task.context !== undefined) {
-                                delete task.context;
-                            }
-                            if (task.subtasks) {
-                                task.subtasks.forEach(migrateTask);
-                            }
-                        }
-
-                        if (loadedData.tasks && Array.isArray(loadedData.tasks)) {
-                            tasks = loadedData.tasks;
-                            currentProjectName = loadedData.projectName || '';
-                            tasks.forEach(migrateTask); // Apply migration
-                            renderTasks();
-                            saveTasksToLocalStorage(); // Save loaded tasks to local storage
-                        } else if (Array.isArray(loadedData)) {
-                            tasks = loadedData;
-                            currentProjectName = '';
-                            tasks.forEach(migrateTask); // Apply migration
-                            renderTasks();
-                            saveTasksToLocalStorage(); // Save loaded tasks to local storage
-                        } else {
-                            showPromptModal("Loaded JSON is not a valid tasks file. Please ensure it's a JSON array of tasks or the new project format.", () => {});
-                        }
-                        updateFilterOptions(); // Update filter options after loading
-                    } catch (error) {
-                        showPromptModal(`Error parsing JSON: ${error.message}`, () => {});
-                    }
-                };
-                reader.readAsText(file);
-            }
-        });
-
-        // --- Print Functionality ---
-        document.getElementById('printTasksBtn').addEventListener('click', () => {
-            window.print();
-        });
-
-        // --- Export CSV Functionality ---
-        document.getElementById('exportCsvBtn').addEventListener('click', () => {
-            exportTasksToCSV();
-        });
-
-        // --- Clear Completed Tasks ---
-        document.getElementById('clearCompletedBtn').addEventListener('click', () => {
-            showConfirmModal("Are you sure you want to delete all completed tasks?", () => {
-                clearCompletedTasks();
-                saveTasksToLocalStorage();
-            });
-        });
-
-        // --- Toggle Statistics ---
-        document.getElementById('toggleStatsBtn').addEventListener('click', () => {
-            const statsPanel = document.getElementById('statsPanel');
-            const toggleBtn = document.getElementById('toggleStatsBtn');
-            
-            if (statsPanel.classList.contains('hidden')) {
-                statsPanel.classList.remove('hidden');
-                toggleBtn.textContent = 'Hide Stats';
-                updateStatistics();
-            } else {
-                statsPanel.classList.add('hidden');
-                toggleBtn.textContent = 'Show Stats';
-            }
-        });
-
-        // Function to update statistics
-        function updateStatistics() {
-            const stats = calculateTaskStatistics(tasks);
-            document.getElementById('totalTasks').textContent = stats.total;
-            document.getElementById('completedTasks').textContent = stats.completed;
-            document.getElementById('overdueTasks').textContent = stats.overdue;
-            document.getElementById('dueSoonTasks').textContent = stats.dueSoon;
-        }
-
-        function calculateTaskStatistics(tasksArray) {
-            let total = 0;
-            let completed = 0;
-            let overdue = 0;
-            let dueSoon = 0;
-            
-            function countTasks(tasks) {
-                tasks.forEach(task => {
-                    if (!task.isArchived) {
-                        total++;
-                        
-                        if (task.isCompleted) {
-                            completed++;
-                        }
-                        
-                        if (task.dueDate && !task.isCompleted) {
-                            const now = new Date();
-                            const dueDate = new Date(task.dueDate);
-                            const diffTime = dueDate.getTime() - now.getTime();
-                            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                            
-                            if (diffDays < 0) {
-                                overdue++;
-                            } else if (diffDays <= 3) {
-                                dueSoon++;
-                            }
-                        }
-                        
-                        if (task.subtasks && task.subtasks.length > 0) {
-                            countTasks(task.subtasks);
-                        }
-                    }
-                });
-            }
-            
-            countTasks(tasksArray);
-            return { total, completed, overdue, dueSoon };
-        }
-
-        // Function to export tasks to CSV
-        function exportTasksToCSV() {
-            const csvContent = generateCSVContent(tasks);
-            const blob = new Blob([csvContent], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `tasks-${currentProjectName.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'export'}.csv`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        function generateCSVContent(tasksArray, level = 0) {
-            let csv = '';
-            if (level === 0) {
-                csv = 'Level,Title,Status,Priority,Due Date,Tags,Progress,Notes,Created\n';
-            }
-            
-            tasksArray.forEach(task => {
-                const title = `"${task.text.replace(/"/g, '""')}"`;
-                const status = task.isCompleted ? 'Completed' : 'Pending';
-                const priority = `"${task.gtdCategory}"`;
-                const dueDate = task.dueDate ? `"${formatDateTime(new Date(task.dueDate))}"` : '';
-                const tags = task.tags ? `"${task.tags.join(', ')}"` : '';
-                const progress = task.progress || 0;
-                const notes = task.notes ? `"${task.notes.replace(/"/g, '""')}"` : '';
-                const created = `"${task.createdAt}"`;
-                
-                csv += `${level},${title},${status},${priority},${dueDate},${tags},${progress}%,${notes},${created}\n`;
-                
-                if (task.subtasks && task.subtasks.length > 0) {
-                    csv += generateCSVContent(task.subtasks, level + 1);
-                }
-            });
-            
-            return csv;
-        }
-
-        function clearCompletedTasks() {
-            function removeCompleted(tasksArray) {
-                return tasksArray.filter(task => {
-                    if (task.isCompleted) {
-                        return false;
-                    }
-                    if (task.subtasks && task.subtasks.length > 0) {
-                        task.subtasks = removeCompleted(task.subtasks);
-                    }
-                    return true;
-                });
-            }
-            
-            tasks = removeCompleted(tasks);
-            renderTasks();
-        }
-
-
-        // --- Drag and Drop Logic ---
-
-        // Helper to find a task by ID in the nested structure
-        function findTaskAndParent(taskId, tasksArray = tasks, parent = null) {
-            for (let i = 0; i < tasksArray.length; i++) {
-                if (tasksArray[i].id === taskId) {
-                    return { task: tasksArray[i], array: tasksArray, index: i, parent: parent };
-                }
-                if (tasksArray[i].subtasks && tasksArray[i].subtasks.length > 0) {
-                    const found = findTaskAndParent(taskId, tasksArray[i].subtasks, tasksArray[i]);
-                    if (found) return found;
-                }
-            }
-            return null;
-        }
-
-        document.addEventListener('dragstart', (e) => {
-            // Only allow dragging task-item elements
-            if (e.target.classList.contains('task-item')) {
-                draggedTask = e.target;
-                draggedTaskParentId = draggedTask.dataset.parentId; // Store original parent
-                e.dataTransfer.effectAllowed = 'move';
-                e.dataTransfer.setData('text/plain', draggedTask.dataset.taskId);
-                setTimeout(() => {
-                    draggedTask.classList.add('dragging');
-                }, 0);
-            }
-        });
-
-        document.addEventListener('dragover', (e) => {
-            e.preventDefault(); // Allow drop
-            if (e.target.closest('.task-item') && draggedTask) {
-                const targetItem = e.target.closest('.task-item');
-                if (targetItem !== draggedTask) {
-                    if (dropTargetElement) {
-                        dropTargetElement.classList.remove('drag-over', 'drag-over-bottom');
-                    }
-
-                    const rect = targetItem.getBoundingClientRect();
-                    const isMiddle = e.clientY > rect.top + rect.height / 4 && e.clientY < rect.bottom - rect.height / 4;
-
-                    if (isMiddle) {
-                        // If dropping in the middle, it means making it a subtask
-                        targetItem.classList.add('drag-over');
-                    } else if (e.clientY < rect.top + rect.height / 2) {
-                        // If dropping on the top half, insert before
-                        targetItem.classList.add('drag-over');
-                    } else {
-                        // If dropping on the bottom half, insert after
-                        targetItem.classList.add('drag-over-bottom');
-                    }
-                    dropTargetElement = targetItem;
-                }
-            }
-        });
-
-        document.addEventListener('dragleave', (e) => {
-            if (dropTargetElement) {
-                dropTargetElement.classList.remove('drag-over', 'drag-over-bottom');
-                dropTargetElement = null;
-            }
-        });
-
-        document.addEventListener('drop', (e) => {
-            e.preventDefault();
-            if (draggedTask && dropTargetElement) {
-                const dropTaskId = dropTargetElement.dataset.taskId;
-                const draggedTaskId = draggedTask.dataset.taskId;
-
-                if (draggedTaskId === dropTaskId) {
-                    // Dropped on itself
-                    return;
-                }
-
-                // Remove the dragged task from its original position
-                const draggedInfo = findTaskAndParent(draggedTaskId);
-                if (!draggedInfo) return; // Should not happen
-
-                const [taskToMove] = draggedInfo.array.splice(draggedInfo.index, 1);
-
-                // Find the target task's location
-                const targetInfo = findTaskAndParent(dropTaskId);
-                if (!targetInfo) {
-                    // If target is root, add to main tasks
-                    if (dropTargetElement.id === 'tasksList') { // Dropped on empty list area
-                        tasks.push(taskToMove);
-                    }
-                    renderTasks();
-                    saveTasksToLocalStorage();
-                    return;
-                }
-
-                const targetArray = targetInfo.array;
-                const targetIndex = targetInfo.index;
-
-                if (dropTargetElement.classList.contains('drag-over')) {
-                    // Case 1: Make it a subtask of the target task
-                    if (!targetInfo.task.subtasks) {
-                        targetInfo.task.subtasks = [];
-                    }
-                    // Prevent a task from becoming a subtask of itself or its own subtask
-                    let isSelfOrDescendant = false;
-                    function checkDescendant(parentTask, childId) {
-                        if (parentTask.id === childId) return true;
-                        if (parentTask.subtasks) {
-                            for (const sub of parentTask.subtasks) {
-                                if (checkDescendant(sub, childId)) return true;
-                            }
-                        }
-                        return false;
-                    }
-                    if (checkDescendant(taskToMove, targetInfo.task.id)) {
-                        // Cannot make a task a subtask of its own descendant
-                        showPromptModal("Cannot make a task a subtask of itself or its own subtask.", () => {});
-                        // Re-insert the task back to its original position
-                        draggedInfo.array.splice(draggedInfo.index, 0, taskToMove);
-                        renderTasks();
-                        saveTasksToLocalStorage();
-                        return;
-                    }
-
-                    targetInfo.task.subtasks.unshift(taskToMove); // Add as first subtask
-                    targetInfo.task.isFolded = false; // Unfold parent if it becomes a subtask
-                } else if (dropTargetElement.classList.contains('drag-over-bottom')) {
-                    // Case 2: Insert after the target task
-                    targetArray.splice(targetIndex + 1, 0, taskToMove);
-                } else {
-                    // Case 3: Insert before the target task (default if not bottom)
-                    targetArray.splice(targetIndex, 0, taskToMove);
-                }
-
-                renderTasks();
-                saveTasksToLocalStorage();
-            }
-        });
-
-        document.addEventListener('dragend', () => {
-            if (draggedTask) {
-                draggedTask.classList.remove('dragging');
-                draggedTask = null;
-                draggedTaskParentId = null;
-            }
-            if (dropTargetElement) {
-                dropTargetElement.classList.remove('drag-over', 'drag-over-bottom');
-                dropTargetElement = null;
-            }
-        });
-
-        // --- Initial Load ---
-        document.addEventListener('DOMContentLoaded', () => {
-            loadTasksFromLocalStorage();
-            renderTasks();
-            updateFilterOptions();
-            setupKeyboardShortcuts();
-            registerServiceWorker();
-            handleURLParameters();
-            setupOfflineDetection();
-            checkForSharedContent();
-        });
-
-        // --- Check for Shared Content (from PWA share target) ---
-        function checkForSharedContent() {
-            if ('caches' in window) {
-                caches.open('gtd-task-manager-v1').then(cache => {
-                    cache.match('/shared-content').then(response => {
-                        if (response) {
-                            response.json().then(data => {
-                                const taskText = data.title + (data.text ? ': ' + data.text : '') + (data.url ? ' ' + data.url : '');
-                                document.getElementById('newTaskInput').value = taskText.trim();
-                                document.getElementById('newTaskInput').focus();
-                                
-                                // Remove the shared content from cache
-                                cache.delete('/shared-content');
-                                
-                                showSaveIndicator('📤 Shared content loaded');
-                            });
-                        }
-                    });
-                });
-            }
-        }
-
-        // --- Handle URL Parameters (for PWA shortcuts and sharing) ---
-        function handleURLParameters() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const action = urlParams.get('action');
-            const title = urlParams.get('title');
-            const text = urlParams.get('text');
-            const url = urlParams.get('url');
-            
-            if (action === 'add') {
-                document.getElementById('newTaskInput').focus();
-            } else if (action === 'stats') {
-                const statsPanel = document.getElementById('statsPanel');
-                if (statsPanel.classList.contains('hidden')) {
-                    document.getElementById('toggleStatsBtn').click();
-                }
-            } else if (title || text) {
-                // Handle shared content
-                const taskText = title + (text ? ': ' + text : '') + (url ? ' ' + url : '');
-                document.getElementById('newTaskInput').value = taskText.trim();
-                document.getElementById('newTaskInput').focus();
-            }
-            
-            // Clear URL parameters after handling
-            if (urlParams.toString()) {
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-        }
-
-        // --- Offline Detection ---
-        function setupOfflineDetection() {
-            const showOfflineStatus = () => {
-                let offlineIndicator = document.getElementById('offlineIndicator');
-                if (!offlineIndicator) {
-                    offlineIndicator = document.createElement('div');
-                    offlineIndicator.id = 'offlineIndicator';
-                    offlineIndicator.style.cssText = `
-                        position: fixed;
-                        top: 0;
-                        left: 0;
-                        right: 0;
-                        background: #f59e0b;
-                        color: white;
-                        text-align: center;
-                        padding: 8px;
-                        font-size: 14px;
-                        z-index: 1002;
-                        transform: translateY(-100%);
-                        transition: transform 0.3s ease;
-                    `;
-                    offlineIndicator.textContent = '📡 You are offline - changes will be saved locally';
-                    document.body.appendChild(offlineIndicator);
-                }
-                offlineIndicator.style.transform = 'translateY(0)';
-            };
-            
-            const hideOfflineStatus = () => {
-                const offlineIndicator = document.getElementById('offlineIndicator');
-                if (offlineIndicator) {
-                    offlineIndicator.style.transform = 'translateY(-100%)';
-                }
-            };
-            
-            // Check initial status
-            if (!navigator.onLine) {
-                showOfflineStatus();
-            }
-            
-            // Listen for online/offline events
-            window.addEventListener('online', () => {
-                hideOfflineStatus();
-                showSaveIndicator('🌐 Back online!');
-            });
-            
-            window.addEventListener('offline', showOfflineStatus);
-        }
-
-        // --- PWA Service Worker Registration ---
-        function registerServiceWorker() {
-            if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('sw.js')
-                        .then((registration) => {
-                            console.log('SW registered: ', registration);
-                            // Show install prompt if available
-                            showInstallPrompt();
-                        })
-                        .catch((registrationError) => {
-                            console.log('SW registration failed: ', registrationError);
-                        });
-                });
-            }
-        }
-
-        // --- PWA Install Prompt ---
-        let deferredPrompt;
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, enableNetwork, disableNetwork } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         
-        window.addEventListener('beforeinstallprompt', (e) => {
-            // Prevent Chrome 67 and earlier from automatically showing the prompt
-            e.preventDefault();
-            // Stash the event so it can be triggered later
-            deferredPrompt = e;
-            // Show install button
-            showInstallButton();
-        });
-
-        function showInstallButton() {
-            const installBtn = document.createElement('button');
-            installBtn.id = 'installBtn';
-            installBtn.className = 'bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded fixed top-4 right-4 z-50';
-            installBtn.textContent = '📱 Install App';
-            installBtn.addEventListener('click', installApp);
-            document.body.appendChild(installBtn);
-        }
-
-        function installApp() {
-            const installBtn = document.getElementById('installBtn');
-            if (installBtn) installBtn.style.display = 'none';
-            
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('User accepted the install prompt');
-                    } else {
-                        console.log('User dismissed the install prompt');
-                    }
-                    deferredPrompt = null;
-                });
-            }
-        }
-
-        function showInstallPrompt() {
-            // Check if app is already installed
-            if (window.matchMedia('(display-mode: standalone)').matches) {
-                console.log('App is running in standalone mode');
-                return;
-            }
-            
-            // Show install prompt after 30 seconds if not installed
-            setTimeout(() => {
-                if (deferredPrompt && !document.getElementById('installBtn')) {
-                    showInstallButton();
-                }
-            }, 30000);
-        }
-
-        // --- Keyboard Shortcuts ---
-        function setupKeyboardShortcuts() {
-            document.addEventListener('keydown', (e) => {
-                // Ctrl+S to save
-                if (e.ctrlKey && e.key === 's') {
-                    e.preventDefault();
-                    document.getElementById('saveTasksBtn').click();
-                }
-                // Ctrl+N to add new task
-                if (e.ctrlKey && e.key === 'n') {
-                    e.preventDefault();
-                    document.getElementById('newTaskInput').focus();
-                }
-                // Ctrl+F to focus search
-                if (e.ctrlKey && e.key === 'f') {
-                    e.preventDefault();
-                    document.getElementById('searchTasksInput').focus();
-                }
-                // Ctrl+P to print
-                if (e.ctrlKey && e.key === 'p') {
-                    e.preventDefault();
-                    window.print();
-                }
-                // Escape to clear search
-                if (e.key === 'Escape') {
-                    const searchInput = document.getElementById('searchTasksInput');
-                    if (searchInput.value) {
-                        searchInput.value = '';
-                        renderTasks();
-                    }
-                }
-            });
-        }
-
-        // --- Auto-save improvements ---
-        let autoSaveTimeout;
-        function autoSave() {
-            clearTimeout(autoSaveTimeout);
-            autoSaveTimeout = setTimeout(() => {
-                saveTasksToLocalStorage();
-            }, 1000); // Auto-save after 1 second of inactivity
-        }
-
-        // Override saveTasksToLocalStorage to include auto-save
-        const originalSave = saveTasksToLocalStorage;
-        saveTasksToLocalStorage = function() {
-            originalSave();
-            // Show a subtle save indicator
-            showSaveIndicator();
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBIHk04nM8R95rZHG0MbwKFAoi_Ps45BCw",
+            authDomain: "labpula-a6457.firebaseapp.com",
+            databaseURL: "https://labpula-a6457-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "labpula-a6457",
+            storageBucket: "labpula-a6457.firebasestorage.app",
+            messagingSenderId: "966934218263",
+            appId: "1:966934218263:web:ce97cbd8c45d6375eebe52",
+            measurementId: "G-32L7VGFFMM"
         };
-
-        function showSaveIndicator(message = '✓ Saved') {
-            let indicator = document.getElementById('saveIndicator');
-            if (!indicator) {
-                indicator = document.createElement('div');
-                indicator.id = 'saveIndicator';
-                indicator.style.cssText = `
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    background: rgba(34, 197, 94, 0.9);
-                    color: white;
-                    padding: 8px 16px;
-                    border-radius: 6px;
-                    font-size: 14px;
-                    z-index: 1001;
-                    opacity: 0;
-                    transition: opacity 0.3s ease;
-                `;
-                document.body.appendChild(indicator);
-            }
-            
-            indicator.textContent = message;
-            indicator.style.opacity = '1';
-            setTimeout(() => {
-                indicator.style.opacity = '0';
-            }, 1500);
-        }
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        
+        // Make Firebase available globally
+        window.firebaseApp = app;
+        window.firebaseDb = db;
+        window.firebaseAuth = auth;
+        window.firebaseModules = {
+            enableNetwork,
+            disableNetwork,
+            signInAnonymously,
+            onAuthStateChanged,
+            signOut
+        };
+        
+        console.log('Firebase initialized successfully');
     </script>
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-slate-900 text-white font-sans">
+    <div class="app-container min-h-screen">
+        <!-- Header -->
+        <header class="header sticky top-0 z-50">
+            <div class="main-content">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-3xl font-bold text-white mb-2">GTD Task Manager</h1>
+                        <p class="text-slate-300">Getting Things Done - Simplified</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div id="syncStatus" class="hidden">
+                            <span id="syncIndicator" class="text-xs px-2 py-1 rounded-full bg-green-500/20 text-green-400">
+                                🔄 Synced
+                            </span>
+                        </div>
+                        <div id="userStatus" class="hidden">
+                            <span id="userIndicator" class="text-xs px-2 py-1 rounded-full bg-blue-500/20 text-blue-400">
+                                👤 Signed In
+                            </span>
+                        </div>
+                        <button id="toggleStats" class="btn-icon" title="Toggle Statistics">
+                            📊
+                        </button>
+                        <div class="dropdown">
+                            <button class="btn-icon" onclick="toggleDropdown('mainMenu')" title="More Options">
+                                ⋮
+                            </button>
+                            <div id="mainMenu" class="dropdown-content">
+                                <button id="exportCsv" class="btn-secondary w-full mb-2">📄 Export CSV</button>
+                                <button id="importTasks" class="btn-secondary w-full mb-2">📂 Import Tasks</button>
+                                <button id="printTasks" class="btn-secondary w-full mb-2">🖨️ Print</button>
+                                <hr class="border-slate-600 my-2">
+                                <button id="signOutBtn" class="btn-danger w-full">🚪 Sign Out</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- Statistics Panel -->
+            <div id="statsPanel" class="hidden">
+                <div class="toolbar">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-semibold text-white">📈 Statistics Dashboard</h2>
+                        <button id="closeStats" class="btn-icon">✕</button>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="stat-card">
+                            <div class="text-2xl font-bold text-blue-400" id="totalTasks">0</div>
+                            <div class="text-sm text-slate-400">Total Tasks</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="text-2xl font-bold text-green-400" id="completedTasks">0</div>
+                            <div class="text-sm text-slate-400">Completed</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="text-2xl font-bold text-red-400" id="overdueTasks">0</div>
+                            <div class="text-sm text-slate-400">Overdue</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="text-2xl font-bold text-yellow-400" id="dueSoonTasks">0</div>
+                            <div class="text-sm text-slate-400">Due Soon</div>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm text-slate-300">Completion Rate</span>
+                            <span class="text-sm text-slate-300" id="completionPercentage">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Task Toolbar -->
+            <div class="toolbar">
+                <div class="add-task-form">
+                    <!-- Basic Form (Always Visible) -->
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <div class="flex-1">
+                            <input type="text" id="newTaskInput" placeholder="What needs to be done?" 
+                                   class="input-field">
+                        </div>
+                        <div class="flex gap-2">
+                            <select id="taskPriority" class="select-field min-w-32">
+                                <option value="low">🔵 Low</option>
+                                <option value="medium" selected>🟡 Medium</option>
+                                <option value="high">🟠 High</option>
+                                <option value="urgent">🔴 Urgent</option>
+                            </select>
+                            <input type="datetime-local" id="taskDueDate" class="input-field min-w-44">
+                            <button id="expandTaskFormBtn" class="btn-secondary" title="More Options">
+                                ⚙️
+                            </button>
+                            <button id="addTaskBtn" class="btn-add-task" title="Add Task">
+                                ➕
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Expanded Form (Hidden by Default) -->
+                    <div id="expandedTaskForm" class="hidden expanded-form">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm text-slate-300 mb-2">Notes (Markdown supported)</label>
+                                <textarea id="newTaskNotes" class="input-field h-24" placeholder="Add detailed notes..."></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm text-slate-300 mb-2">Tags (comma-separated)</label>
+                                <input type="text" id="newTaskTags" class="input-field mb-4" placeholder="work, urgent, project">
+                                
+                                <label class="block text-sm text-slate-300 mb-2">Progress</label>
+                                <div class="flex items-center gap-4">
+                                    <input type="range" id="newTaskProgress" class="flex-1" min="0" max="100" value="0">
+                                    <span id="newProgressValue" class="text-sm text-slate-300 min-w-12">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Toolbar -->
+            <div class="filter-drawer collapsed" id="filterDrawer">
+                <div class="filter-header" onclick="toggleFilterDrawer()">
+                    <div class="flex items-center justify-between">
+                        <span class="text-white font-medium">🔍 Filters & Search</span>
+                        <span id="filterToggleIcon" class="text-slate-400">▼</span>
+                    </div>
+                </div>
+                <div class="filter-content">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm text-slate-300 mb-2">Search Tasks</label>
+                            <input type="text" id="searchInput" placeholder="Search tasks..." class="input-field">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-slate-300 mb-2">Filter by Status</label>
+                            <select id="statusFilter" class="select-field">
+                                <option value="">All Status</option>
+                                <option value="completed">✅ Completed</option>
+                                <option value="pending">⏳ Pending</option>
+                                <option value="overdue">🔴 Overdue</option>
+                                <option value="due-soon">🟡 Due Soon</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-slate-300 mb-2">Filter by Priority</label>
+                            <select id="priorityFilter" class="select-field">
+                                <option value="">All Priorities</option>
+                                <option value="urgent">🔴 Urgent</option>
+                                <option value="high">🟠 High</option>
+                                <option value="medium">🟡 Medium</option>
+                                <option value="low">🔵 Low</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <button id="clearCompleted" class="btn-danger">🗑️ Clear Completed</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tasks Container -->
+            <div id="tasksContainer" class="space-y-4">
+                <!-- Tasks will be rendered here -->
+                <div id="emptyState" class="empty-state hidden">
+                    <div class="text-6xl mb-4">📝</div>
+                    <h3 class="text-xl font-semibold mb-2">No tasks found</h3>
+                    <p class="text-slate-500">Add your first task or adjust your filters</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Offline Indicator -->
+    <div id="offlineIndicator" class="offline-indicator hidden">
+        🔴 Offline - Changes will sync when online
+    </div>
+
+    <!-- Modals -->
+    <!-- Edit Task Modal -->
+    <div id="editTaskModal" class="modal">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-white">✏️ Edit Task</h2>
+                <button class="btn-icon" onclick="closeModal('editTaskModal')">✕</button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm text-slate-300 mb-2">Task Text</label>
+                    <textarea id="editTaskText" class="input-field h-24" placeholder="Enter task description..."></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-300 mb-2">Notes (Markdown supported)</label>
+                    <textarea id="editTaskNotes" class="input-field h-32" placeholder="Add detailed notes..."></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm text-slate-300 mb-2">Priority</label>
+                        <select id="editTaskPriority" class="select-field">
+                            <option value="low">🔵 Low</option>
+                            <option value="medium">🟡 Medium</option>
+                            <option value="high">🟠 High</option>
+                            <option value="urgent">🔴 Urgent</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-300 mb-2">Due Date</label>
+                        <input type="datetime-local" id="editTaskDueDate" class="input-field">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-300 mb-2">Tags (comma-separated)</label>
+                    <input type="text" id="editTaskTags" class="input-field" placeholder="work, urgent, project">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-300 mb-2">Progress</label>
+                    <div class="flex items-center gap-4">
+                        <input type="range" id="editTaskProgress" class="flex-1" min="0" max="100" value="0">
+                        <span id="editProgressValue" class="text-sm text-slate-300 min-w-12">0%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex gap-2 justify-end mt-6">
+                <button class="btn-secondary" onclick="closeModal('editTaskModal')">Cancel</button>
+                <button id="saveTaskBtn" class="btn-primary">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content max-w-md">
+            <h2 class="text-lg font-bold text-white mb-4">Confirm Action</h2>
+            <p id="confirmMessage" class="text-slate-300 mb-6"></p>
+            <div class="flex gap-2 justify-end">
+                <button class="btn-secondary" onclick="closeModal('confirmModal')">Cancel</button>
+                <button id="confirmBtn" class="btn-danger">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden File Input -->
+    <input type="file" id="fileInput" accept=".json" class="hidden">
+
+    <!-- Scripts -->
+    <script src="firebase-manager.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>

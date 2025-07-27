@@ -2,9 +2,15 @@ const CACHE_NAME = 'gtd-task-manager-v1';
 const urlsToCache = [
   '/',
   '/index.html',
+  '/styles.css',
+  '/app.js',
+  '/firebase-manager.js',
   '/manifest.json',
   'https://cdn.tailwindcss.com',
-  'https://cdn.jsdelivr.net/npm/marked/marked.min.js'
+  'https://cdn.jsdelivr.net/npm/marked/marked.min.js',
+  'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js',
+  'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js',
+  'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js'
 ];
 
 // Install event - cache resources
