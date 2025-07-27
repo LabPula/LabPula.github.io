@@ -106,6 +106,15 @@ class RichTextEditor {
         this.editor.addEventListener('click', (e) => {
             if (e.target.tagName === 'A') {
                 e.preventDefault();
+                // Show link edit dialog when clicking on existing links
+                this.editExistingLink(e.target);
+            }
+        });
+        
+        // Show link preview on hover
+        this.editor.addEventListener('mouseover', (e) => {
+            if (e.target.tagName === 'A') {
+                e.target.title = `Link: ${e.target.href}`;
             }
         });
     }
@@ -213,6 +222,77 @@ class RichTextEditor {
             if (e.key === 'Enter') {
                 e.preventDefault();
                 insertBtn.click();
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                cancelBtn.click();
+            }
+        });
+    }
+
+    editExistingLink(linkElement) {
+        this.hideLinkDialog(); // Hide any existing dialog
+        
+        const currentUrl = linkElement.href;
+        const currentText = linkElement.textContent;
+        
+        const dialog = document.createElement('div');
+        dialog.className = 'url-dialog';
+        dialog.innerHTML = `
+            <input type="url" placeholder="Enter URL (https://...)" value="${currentUrl}" class="url-input">
+            <input type="text" placeholder="Link text" value="${currentText}" class="text-input">
+            <div class="url-dialog-buttons">
+                <button class="btn-danger remove-btn">Remove Link</button>
+                <button class="btn-secondary cancel-btn">Cancel</button>
+                <button class="btn-primary update-btn">Update Link</button>
+            </div>
+        `;
+        
+        this.container.appendChild(dialog);
+        this.urlDialog = dialog;
+        
+        const urlInput = dialog.querySelector('.url-input');
+        const textInput = dialog.querySelector('.text-input');
+        const updateBtn = dialog.querySelector('.update-btn');
+        const cancelBtn = dialog.querySelector('.cancel-btn');
+        const removeBtn = dialog.querySelector('.remove-btn');
+        
+        urlInput.focus();
+        urlInput.select();
+        
+        updateBtn.addEventListener('click', () => {
+            const url = urlInput.value.trim();
+            const text = textInput.value.trim() || url;
+            
+            if (url) {
+                // Ensure URL has protocol
+                if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('mailto:')) {
+                    linkElement.href = 'https://' + url;
+                } else {
+                    linkElement.href = url;
+                }
+                linkElement.textContent = text;
+            }
+            this.hideLinkDialog();
+            this.updateToolbar();
+        });
+        
+        removeBtn.addEventListener('click', () => {
+            // Replace link with just text
+            const textNode = document.createTextNode(linkElement.textContent);
+            linkElement.parentNode.replaceChild(textNode, linkElement);
+            this.hideLinkDialog();
+            this.updateToolbar();
+        });
+        
+        cancelBtn.addEventListener('click', () => {
+            this.hideLinkDialog();
+        });
+        
+        // Handle Enter key
+        dialog.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                updateBtn.click();
             } else if (e.key === 'Escape') {
                 e.preventDefault();
                 cancelBtn.click();

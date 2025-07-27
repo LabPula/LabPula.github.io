@@ -56,6 +56,73 @@ class GTDTaskManager {
         });
     }
 
+    // Make links in task notes clickable
+    makeLinksClickable(container) {
+        const links = container.querySelectorAll('a');
+        links.forEach(link => {
+            // Ensure link has href attribute
+            if (!link.href) {
+                const href = link.getAttribute('href') || link.textContent;
+                if (href) {
+                    // Add protocol if missing
+                    if (!href.startsWith('http://') && !href.startsWith('https://') && !href.startsWith('mailto:')) {
+                        link.href = 'https://' + href;
+                    } else {
+                        link.href = href;
+                    }
+                }
+            }
+            
+            // Set link properties
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            
+            // Add click handler
+            link.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent task selection
+                // Link will open naturally due to href and target attributes
+            });
+            
+            // Add hover effect
+            link.addEventListener('mouseenter', () => {
+                link.style.textDecoration = 'none';
+            });
+            
+            link.addEventListener('mouseleave', () => {
+                link.style.textDecoration = 'underline';
+            });
+        });
+    }
+
+    // Toggle subtasks visibility
+    // Simple toggle method
+    simpleToggleSubtasks(taskId) {
+        console.log('Toggle called for task:', taskId);
+        const container = document.querySelector(`[data-parent-task-id="${taskId}"]`);
+        console.log('Found container:', container);
+        
+        if (container) {
+            // Check if it's currently hidden
+            const isHidden = container.style.display === 'none';
+            console.log('Currently hidden:', isHidden);
+            console.log('Current display value:', container.style.display);
+            
+            if (isHidden) {
+                // Show it
+                container.style.display = '';
+                console.log('Showing container');
+            } else {
+                // Hide it
+                container.style.display = 'none';
+                console.log('Hiding container');
+            }
+            
+            console.log('New display value:', container.style.display);
+        } else {
+            console.log('Container not found!');
+        }
+    }
+    
     // Utility Functions
     generateId() {
         return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
@@ -310,9 +377,12 @@ class GTDTaskManager {
         const emptyState = document.getElementById('emptyState');
         const filteredTasks = this.getFilteredTasks();
 
-        // Clear existing tasks except empty state
+        // Clear existing tasks AND subtask containers
         const existingTasks = container.querySelectorAll('.task-card');
         existingTasks.forEach(task => task.remove());
+        
+        const existingSubtaskContainers = container.querySelectorAll('.subtask-container');
+        existingSubtaskContainers.forEach(container => container.remove());
 
         if (filteredTasks.length === 0) {
             emptyState.classList.remove('hidden');
@@ -356,8 +426,39 @@ class GTDTaskManager {
         // Task Text
         const taskText = document.createElement('div');
         taskText.className = 'task-text';
-        taskText.innerHTML = marked.parse(task.text);
-
+        
+        // Create container for task text and subtask toggle
+        const taskTextContainer = document.createElement('div');
+        taskTextContainer.className = 'flex items-center justify-between';
+        
+        const textContent = document.createElement('div');
+        textContent.innerHTML = marked.parse(task.text);
+        taskTextContainer.appendChild(textContent);
+        
+        // Add subtask toggle if task has subtasks
+        if (task.subtasks && task.subtasks.length > 0) {
+            const subtaskToggle = document.createElement('button');
+            subtaskToggle.className = 'subtask-toggle';
+            subtaskToggle.innerHTML = '▼';
+            subtaskToggle.title = 'Click to hide subtasks';
+            subtaskToggle.onclick = (e) => {
+                e.stopPropagation();
+                this.simpleToggleSubtasks(task.id);
+                // Update button text after toggle
+                const container = document.querySelector(`[data-parent-task-id="${task.id}"]`);
+                if (container && container.style.display === 'none') {
+                    subtaskToggle.innerHTML = '▶';
+                    subtaskToggle.title = 'Click to show subtasks';
+                } else {
+                    subtaskToggle.innerHTML = '▼';
+                    subtaskToggle.title = 'Click to hide subtasks';
+                }
+            };
+            
+            taskTextContainer.appendChild(subtaskToggle);
+        }
+        
+        taskText.appendChild(taskTextContainer);
         content.appendChild(taskText);
 
         // Task Notes (if present)
@@ -371,6 +472,9 @@ class GTDTaskManager {
             } else {
                 notesContainer.innerHTML = marked.parse(task.notes);
             }
+            
+            // Make links clickable and open in new tab
+            this.makeLinksClickable(notesContainer);
             
             content.appendChild(notesContainer);
         }
@@ -496,6 +600,7 @@ class GTDTaskManager {
         if (task.subtasks && task.subtasks.length > 0) {
             const subtaskContainer = document.createElement('div');
             subtaskContainer.className = 'subtask-container';
+            subtaskContainer.setAttribute('data-parent-task-id', task.id);
             
             task.subtasks.forEach(subtask => {
                 this.renderTaskCard(subtask, subtaskContainer, true);
