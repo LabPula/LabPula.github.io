@@ -181,9 +181,23 @@
                                 <input type="text" id="newTaskTags" class="input-field mb-4" placeholder="work, urgent, project">
                                 
                                 <label class="block text-sm text-slate-300 mb-2">Progress</label>
-                                <div class="flex items-center gap-4">
+                                <div class="flex items-center gap-4 mb-4">
                                     <input type="range" id="newTaskProgress" class="flex-1" min="0" max="100" value="0">
                                     <span id="newProgressValue" class="text-sm text-slate-300 min-w-12">0%</span>
+                                </div>
+                                
+                                <!-- Recurring Task Settings -->
+                                <label class="block text-sm text-slate-300 mb-2">Repeat</label>
+                                <select id="taskRepeat" class="select-field mb-2">
+                                    <option value="none">No Repeat</option>
+                                    <option value="daily">🔁 Daily</option>
+                                    <option value="weekly">🔁 Weekly</option>
+                                    <option value="monthly">🔁 Monthly</option>
+                                </select>
+                                
+                                <div id="repeatUntilContainer" style="display: none;">
+                                    <label class="block text-sm text-slate-300 mb-2">Repeat Until</label>
+                                    <input type="date" id="taskRepeatUntil" class="input-field" title="Repeat Until">
                                 </div>
                             </div>
                         </div>
@@ -279,6 +293,21 @@
                     <div>
                         <label class="block text-sm text-slate-300 mb-2">Due Date</label>
                         <input type="datetime-local" id="editTaskDueDate" class="input-field">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-300 mb-2">Repeat</label>
+                        <select id="editTaskRepeat" class="select-field">
+                            <option value="none">No Repeat</option>
+                            <option value="daily">🔁 Daily</option>
+                            <option value="weekly">🔁 Weekly</option>
+                            <option value="monthly">🔁 Monthly</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 gap-4" id="editRepeatUntilContainer" style="display: none;">
+                    <div>
+                        <label class="block text-sm text-slate-300 mb-2">Repeat Until</label>
+                        <input type="date" id="editTaskRepeatUntil" class="input-field">
                     </div>
                 </div>
                 <div>

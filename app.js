@@ -16,6 +16,10 @@ class GTDTaskManager {
         this.loadTasksFromStorage();
         this.setupEventListeners();
         this.setupServiceWorker();
+        
+        // Process any missed recurring tasks
+        this.processOverdueRecurringTasks();
+        
         this.renderTasks();
         this.updateStatistics();
         
@@ -145,7 +149,7 @@ class GTDTaskManager {
     }
 
     // Task Management
-    addTask(text, priority = 'medium', dueDate = null, notes = '', tags = [], progress = 0) {
+    addTask(text, priority = 'medium', dueDate = null, notes = '', tags = [], progress = 0, repeatType = 'none', repeatUntil = null) {
         if (!text.trim()) return;
 
         const task = {
@@ -159,7 +163,9 @@ class GTDTaskManager {
             tags: tags.filter(tag => tag.trim()),
             progress: progress,
             archived: false,
-            subtasks: []
+            subtasks: [],
+            repeatType: repeatType,
+            repeatUntil: repeatUntil
         };
 
         this.tasks.unshift(task);
@@ -184,6 +190,9 @@ class GTDTaskManager {
         document.getElementById('newTaskProgress').value = '0';
         document.getElementById('newProgressValue').textContent = '0%';
         document.getElementById('taskPriority').value = 'medium';
+        document.getElementById('taskRepeat').value = 'none';
+        document.getElementById('taskRepeatUntil').value = '';
+        document.getElementById('repeatUntilContainer').style.display = 'none';
         
         // Clear rich text editor
         if (this.newTaskNotesEditor) {
@@ -218,10 +227,103 @@ class GTDTaskManager {
             // Also toggle subtasks
             this.toggleSubtasksCompletion(task.subtasks, task.completed);
             
+            // If task is being completed and has recurring settings, create new occurrence
+            if (task.completed && task.repeatType && task.repeatType !== 'none') {
+                this.createRecurringTask(task);
+            }
+            
             this.saveTasksToStorage();
             this.renderTasks();
             this.updateStatistics();
         }
+    }
+
+    createRecurringTask(originalTask) {
+        if (!originalTask.dueDate || !originalTask.repeatUntil) return;
+        
+        const nextDueDate = this.calculateNextDueDate(originalTask.dueDate, originalTask.repeatType);
+        const repeatUntilDate = new Date(originalTask.repeatUntil);
+        
+        // Only create if next due date is within the repeat until date
+        if (nextDueDate <= repeatUntilDate) {
+            const newTask = {
+                ...originalTask,
+                id: this.generateId(),
+                completed: false,
+                completedAt: null,
+                dueDate: nextDueDate.toISOString(),
+                createdAt: new Date().toISOString(),
+                subtasks: [] // Start with empty subtasks for recurring task
+            };
+            
+            this.tasks.unshift(newTask);
+            console.log(`Created recurring task: ${newTask.text} due ${nextDueDate.toLocaleDateString()}`);
+        }
+    }
+
+    calculateNextDueDate(currentDueDate, repeatType) {
+        const currentDate = new Date(currentDueDate);
+        const nextDate = new Date(currentDate);
+        
+        switch (repeatType) {
+            case 'daily':
+                nextDate.setDate(nextDate.getDate() + 1);
+                break;
+            case 'weekly':
+                nextDate.setDate(nextDate.getDate() + 7);
+                break;
+            case 'monthly':
+                nextDate.setMonth(nextDate.getMonth() + 1);
+                break;
+            default:
+                return currentDate;
+        }
+        
+        return nextDate;
+    }
+
+    // Check for missed recurring tasks on page load
+    processOverdueRecurringTasks() {
+        const now = new Date();
+        
+        this.tasks.forEach(task => {
+            if (task.completed && task.repeatType && task.repeatType !== 'none' && 
+                task.dueDate && task.repeatUntil && task.completedAt) {
+                
+                const completedAt = new Date(task.completedAt);
+                const originalDueDate = new Date(task.dueDate);
+                const repeatUntilDate = new Date(task.repeatUntil);
+                
+                // Check if we need to create recurring tasks that were missed
+                let nextDueDate = this.calculateNextDueDate(task.dueDate, task.repeatType);
+                
+                while (nextDueDate <= now && nextDueDate <= repeatUntilDate) {
+                    // Check if we already have a task for this date
+                    const existingTask = this.tasks.find(t => 
+                        t.text === task.text && 
+                        t.dueDate && 
+                        Math.abs(new Date(t.dueDate) - nextDueDate) < 24 * 60 * 60 * 1000 // Within 24 hours
+                    );
+                    
+                    if (!existingTask) {
+                        const newTask = {
+                            ...task,
+                            id: this.generateId(),
+                            completed: false,
+                            completedAt: null,
+                            dueDate: nextDueDate.toISOString(),
+                            createdAt: new Date().toISOString(),
+                            subtasks: []
+                        };
+                        
+                        this.tasks.unshift(newTask);
+                        console.log(`Created missed recurring task: ${newTask.text} due ${nextDueDate.toLocaleDateString()}`);
+                    }
+                    
+                    nextDueDate = this.calculateNextDueDate(nextDueDate.toISOString(), task.repeatType);
+                }
+            }
+        });
     }
 
     toggleSubtasksCompletion(subtasks, completed) {
@@ -524,6 +626,18 @@ class GTDTaskManager {
         const priorityContainer = document.createElement('div');
         priorityContainer.className = 'flex gap-1 mb-2';
         priorityContainer.appendChild(priorityTag);
+        
+        // Recurring Tag (if task has recurring settings)
+        if (task.repeatType && task.repeatType !== 'none') {
+            const recurringTag = document.createElement('span');
+            recurringTag.className = 'tag recurring-tag';
+            const repeatIcon = task.repeatType === 'daily' ? '🔁' : task.repeatType === 'weekly' ? '📅' : '📆';
+            const untilDate = task.repeatUntil ? new Date(task.repeatUntil).toLocaleDateString() : '';
+            recurringTag.textContent = `${repeatIcon} ${task.repeatType.charAt(0).toUpperCase() + task.repeatType.slice(1)}${untilDate ? ` until ${untilDate}` : ''}`;
+            recurringTag.title = `Repeats ${task.repeatType}${untilDate ? ` until ${untilDate}` : ''}`;
+            priorityContainer.appendChild(recurringTag);
+        }
+        
         content.appendChild(priorityContainer);
 
         // Action Buttons
@@ -672,6 +786,16 @@ class GTDTaskManager {
         document.getElementById('editTaskTags').value = task.tags ? task.tags.join(', ') : '';
         document.getElementById('editTaskProgress').value = task.progress || 0;
         document.getElementById('editProgressValue').textContent = `${task.progress || 0}%`;
+        document.getElementById('editTaskRepeat').value = task.repeatType || 'none';
+        document.getElementById('editTaskRepeatUntil').value = task.repeatUntil ? task.repeatUntil.slice(0, 10) : '';
+        
+        // Show/hide repeat until field based on repeat selection
+        const repeatUntilContainer = document.getElementById('editRepeatUntilContainer');
+        if (task.repeatType && task.repeatType !== 'none') {
+            repeatUntilContainer.style.display = 'block';
+        } else {
+            repeatUntilContainer.style.display = 'none';
+        }
         
         // Set rich text editor content
         if (this.editTaskNotesEditor) {
@@ -690,7 +814,9 @@ class GTDTaskManager {
             priority: document.getElementById('editTaskPriority').value,
             dueDate: document.getElementById('editTaskDueDate').value || null,
             tags: document.getElementById('editTaskTags').value.split(',').map(tag => tag.trim()).filter(tag => tag),
-            progress: parseInt(document.getElementById('editTaskProgress').value)
+            progress: parseInt(document.getElementById('editTaskProgress').value),
+            repeatType: document.getElementById('editTaskRepeat').value,
+            repeatUntil: document.getElementById('editTaskRepeatUntil').value || null
         };
         
         this.updateTask(this.currentEditingTask.id, updates);
@@ -936,8 +1062,10 @@ class GTDTaskManager {
                 .map(tag => tag.trim())
                 .filter(tag => tag);
             const progress = parseInt(document.getElementById('newTaskProgress').value) || 0;
+            const repeatType = document.getElementById('taskRepeat').value;
+            const repeatUntil = document.getElementById('taskRepeatUntil').value || null;
             
-            this.addTask(text, priority, dueDate, notes, tags, progress);
+            this.addTask(text, priority, dueDate, notes, tags, progress, repeatType, repeatUntil);
         });
 
         // Enter key for add task
@@ -952,8 +1080,10 @@ class GTDTaskManager {
                     .map(tag => tag.trim())
                     .filter(tag => tag);
                 const progress = parseInt(document.getElementById('newTaskProgress').value) || 0;
+                const repeatType = document.getElementById('taskRepeat').value;
+                const repeatUntil = document.getElementById('taskRepeatUntil').value || null;
                 
-                this.addTask(text, priority, dueDate, notes, tags, progress);
+                this.addTask(text, priority, dueDate, notes, tags, progress, repeatType, repeatUntil);
             }
         });
 
@@ -1025,6 +1155,48 @@ class GTDTaskManager {
                 setTimeout(() => {
                     e.target.style.display = 'none';
                 }, 300);
+            }
+        });
+
+        // Recurring task event listeners
+        document.getElementById('taskRepeat').addEventListener('change', (e) => {
+            const repeatUntilContainer = document.getElementById('repeatUntilContainer');
+            if (e.target.value !== 'none') {
+                repeatUntilContainer.style.display = 'block';
+            } else {
+                repeatUntilContainer.style.display = 'none';
+                document.getElementById('taskRepeatUntil').value = '';
+            }
+        });
+
+        document.getElementById('editTaskRepeat').addEventListener('change', (e) => {
+            const repeatUntilContainer = document.getElementById('editRepeatUntilContainer');
+            if (e.target.value !== 'none') {
+                repeatUntilContainer.style.display = 'block';
+            } else {
+                repeatUntilContainer.style.display = 'none';
+                document.getElementById('editTaskRepeatUntil').value = '';
+            }
+        });
+
+        // Recurring task event listeners
+        document.getElementById('taskRepeat').addEventListener('change', (e) => {
+            const repeatUntilContainer = document.getElementById('repeatUntilContainer');
+            if (e.target.value !== 'none') {
+                repeatUntilContainer.style.display = 'block';
+            } else {
+                repeatUntilContainer.style.display = 'none';
+                document.getElementById('taskRepeatUntil').value = '';
+            }
+        });
+
+        document.getElementById('editTaskRepeat').addEventListener('change', (e) => {
+            const repeatUntilContainer = document.getElementById('editRepeatUntilContainer');
+            if (e.target.value !== 'none') {
+                repeatUntilContainer.style.display = 'block';
+            } else {
+                repeatUntilContainer.style.display = 'none';
+                document.getElementById('editTaskRepeatUntil').value = '';
             }
         });
     }

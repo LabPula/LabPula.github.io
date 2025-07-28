@@ -126,7 +126,7 @@ class RichTextEditor {
         this.editor.focus();
         
         if (command === 'createLink') {
-            this.showLinkDialog();
+            this.insertSimpleLink();
             return;
         }
         
@@ -160,7 +160,7 @@ class RichTextEditor {
                     break;
                 case 'k':
                     e.preventDefault();
-                    this.showLinkDialog();
+                    this.insertSimpleLink();
                     break;
             }
         }
@@ -171,62 +171,38 @@ class RichTextEditor {
         }
     }
 
-    showLinkDialog() {
-        this.hideLinkDialog(); // Hide any existing dialog
-        
+    insertSimpleLink() {
         const selection = window.getSelection();
         if (selection.rangeCount === 0) return;
         
-        const selectedText = selection.toString();
+        const selectedText = selection.toString().trim();
         
-        const dialog = document.createElement('div');
-        dialog.className = 'url-dialog';
-        dialog.innerHTML = `
-            <input type="url" placeholder="Enter URL (https://...)" value="" class="url-input">
-            <input type="text" placeholder="Link text" value="${selectedText}" class="text-input">
-            <div class="url-dialog-buttons">
-                <button class="btn-secondary cancel-btn">Cancel</button>
-                <button class="btn-primary insert-btn">Insert Link</button>
-            </div>
-        `;
+        // Check if selected text is a valid URL
+        if (!selectedText || (!selectedText.startsWith('http://') && !selectedText.startsWith('https://'))) {
+            return; // Do nothing if not a valid URL
+        }
         
-        this.container.appendChild(dialog);
-        this.urlDialog = dialog;
-        
-        const urlInput = dialog.querySelector('.url-input');
-        const textInput = dialog.querySelector('.text-input');
-        const insertBtn = dialog.querySelector('.insert-btn');
-        const cancelBtn = dialog.querySelector('.cancel-btn');
-        
-        urlInput.focus();
-        
-        // Save current selection
-        this.savedSelection = selection.getRangeAt(0);
-        
-        insertBtn.addEventListener('click', () => {
-            const url = urlInput.value.trim();
-            const text = textInput.value.trim() || url;
+        // Check if we're in a textarea (plain text mode)
+        if (this.editor.tagName === 'TEXTAREA') {
+            // For textarea, insert markdown link format
+            const start = this.editor.selectionStart;
+            const end = this.editor.selectionEnd;
+            const markdownLink = `[${selectedText}](${selectedText})`;
             
-            if (url) {
-                this.insertLink(url, text);
-            }
-            this.hideLinkDialog();
-        });
-        
-        cancelBtn.addEventListener('click', () => {
-            this.hideLinkDialog();
-        });
-        
-        // Handle Enter key
-        dialog.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                insertBtn.click();
-            } else if (e.key === 'Escape') {
-                e.preventDefault();
-                cancelBtn.click();
-            }
-        });
+            const currentValue = this.editor.value;
+            const newValue = currentValue.substring(0, start) + markdownLink + currentValue.substring(end);
+            this.editor.value = newValue;
+            
+            // Set cursor position after the inserted link
+            const newCursorPos = start + markdownLink.length;
+            this.editor.setSelectionRange(newCursorPos, newCursorPos);
+            
+            // Trigger input event to notify any listeners
+            this.editor.dispatchEvent(new Event('input', { bubbles: true }));
+        } else {
+            // For contenteditable, use the existing insertLink method
+            this.insertLink(selectedText, selectedText);
+        }
     }
 
     editExistingLink(linkElement) {
