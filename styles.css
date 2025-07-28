@@ -71,7 +71,19 @@ body {
 .main-content {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
+    .main-content {
+        padding: 0 1.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .main-content {
+        padding: 0 2rem;
+    }
 }
 
 /* Header */
@@ -685,14 +697,24 @@ body {
     backdrop-filter: blur(20px);
     border: 1px solid rgba(148, 163, 184, 0.2);
     border-radius: 1rem;
-    padding: 2rem;
+    padding: 1rem;
     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-    width: 90%;
+    width: 95%;
     max-width: 600px;
-    max-height: 80vh;
+    max-height: 90vh;
     overflow-y: auto;
     transform: scale(0.9) translateY(20px);
     transition: all 0.3s ease;
+    margin: 1rem;
+}
+
+@media (min-width: 640px) {
+    .modal-content {
+        padding: 2rem;
+        width: 90%;
+        max-height: 80vh;
+        margin: 0;
+    }
 }
 
 .modal.show .modal-content {
@@ -772,6 +794,10 @@ body {
         padding: 1rem 0;
     }
     
+    .header .main-content {
+        padding: 0 0.75rem;
+    }
+    
     .task-header {
         padding: 1rem;
     }
@@ -792,6 +818,35 @@ body {
     .modal-content {
         padding: 1.5rem;
         margin: 1rem;
+    }
+    
+    /* Mobile-specific form layout */
+    .toolbar .flex:has(#newTaskInput) {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .toolbar .flex:has(#taskPriority) {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    /* Ensure buttons don't overflow */
+    .btn-add-task,
+    .btn-secondary {
+        min-width: 2.5rem;
+        flex-shrink: 0;
+    }
+    
+    /* Status indicators responsive behavior */
+    #syncStatus span,
+    #userStatus span {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        max-width: 140px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
     
     .btn-primary,
@@ -1219,6 +1274,57 @@ body {
     .rich-text-editor {
         padding: 0.5rem;
         min-height: 100px;
+    }
+    
+    /* Extra small mobile adjustments */
+    .header h1 {
+        font-size: 1.25rem;
+        line-height: 1.2;
+    }
+    
+    .header p {
+        font-size: 0.75rem;
+    }
+    
+    /* Force status indicators to wrap properly */
+    .header .flex.flex-wrap {
+        justify-content: flex-start;
+    }
+    
+    #syncStatus,
+    #userStatus {
+        flex: 0 1 auto;
+        max-width: 120px;
+    }
+    
+    #syncStatus span,
+    #userStatus span {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.4rem;
+        max-width: 110px;
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    /* Task form mobile improvements */
+    .toolbar .flex:has(#taskPriority) .flex {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .select-field.min-w-32 {
+        min-width: auto;
+        flex: 1 1 auto;
+        max-width: calc(50% - 0.5rem);
+    }
+    
+    .input-field.min-w-44 {
+        min-width: auto;
+        width: 100%;
+        margin-top: 0.5rem;
+        order: 3;
+        flex-basis: 100%;
     }
 }
 

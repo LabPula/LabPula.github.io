@@ -69,35 +69,37 @@
         <!-- Header -->
         <header class="header sticky top-0 z-50">
             <div class="main-content">
-                <div class="flex items-center justify-between">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                     <div>
-                        <h1 class="text-3xl font-bold text-white mb-2">GTD Task Manager</h1>
-                        <p class="text-slate-300">Getting Things Done - Simplified</p>
+                        <h1 class="text-2xl sm:text-3xl font-bold text-white mb-1 sm:mb-2">GTD Task Manager</h1>
+                        <p class="text-slate-300 text-sm sm:text-base">Getting Things Done - Simplified</p>
                     </div>
-                    <div class="flex items-center gap-3">
+                    <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                         <div id="syncStatus" class="hidden">
-                            <span id="syncIndicator" class="text-xs px-2 py-1 rounded-full bg-green-500/20 text-green-400">
-                                🔄 Synced
+                            <span id="syncIndicator" class="text-xs px-2 py-1 rounded-full bg-green-500/20 text-green-400 whitespace-nowrap">
+                                ✅ Tasks synced
                             </span>
                         </div>
                         <div id="userStatus" class="hidden">
-                            <span id="userIndicator" class="text-xs px-2 py-1 rounded-full bg-blue-500/20 text-blue-400">
-                                👤 Signed In
+                            <span id="userIndicator" class="text-xs px-2 py-1 rounded-full bg-blue-500/20 text-blue-400 whitespace-nowrap">
+                                👤 Mihael Holi
                             </span>
                         </div>
-                        <button id="toggleStats" class="btn-icon" title="Toggle Statistics">
-                            📊
-                        </button>
-                        <div class="dropdown">
-                            <button class="btn-icon" onclick="toggleDropdown('mainMenu')" title="More Options">
-                                ⋮
+                        <div class="flex items-center gap-2 ml-auto sm:ml-0">
+                            <button id="toggleStats" class="btn-icon" title="Toggle Statistics">
+                                📊
                             </button>
-                            <div id="mainMenu" class="dropdown-content">
-                                <button id="exportCsv" class="btn-secondary w-full mb-2">📄 Export CSV</button>
-                                <button id="importTasks" class="btn-secondary w-full mb-2">📂 Import Tasks</button>
-                                <button id="printTasks" class="btn-secondary w-full mb-2">🖨️ Print</button>
-                                <hr class="border-slate-600 my-2">
-                                <button id="signOutBtn" class="btn-danger w-full">🚪 Sign Out</button>
+                            <div class="dropdown">
+                                <button class="btn-icon" onclick="toggleDropdown('mainMenu')" title="More Options">
+                                    ⋮
+                                </button>
+                                <div id="mainMenu" class="dropdown-content">
+                                    <button id="exportCsv" class="btn-secondary w-full mb-2">📄 Export CSV</button>
+                                    <button id="importTasks" class="btn-secondary w-full mb-2">📂 Import Tasks</button>
+                                    <button id="printTasks" class="btn-secondary w-full mb-2">🖨️ Print</button>
+                                    <hr class="border-slate-600 my-2">
+                                    <button id="signOutBtn" class="btn-danger w-full">🚪 Sign Out</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -147,25 +149,27 @@
             <div class="toolbar">
                 <div class="add-task-form">
                     <!-- Basic Form (Always Visible) -->
-                    <div class="flex flex-col sm:flex-row gap-3">
+                    <div class="flex flex-col gap-3">
                         <div class="flex-1">
                             <input type="text" id="newTaskInput" placeholder="What needs to be done?" 
                                    class="input-field">
                         </div>
-                        <div class="flex gap-2">
-                            <select id="taskPriority" class="select-field min-w-32">
+                        <div class="flex flex-wrap gap-2">
+                            <select id="taskPriority" class="select-field min-w-32 flex-shrink-0">
                                 <option value="low">🔵 Low</option>
                                 <option value="medium" selected>🟡 Medium</option>
                                 <option value="high">🟠 High</option>
                                 <option value="urgent">🔴 Urgent</option>
                             </select>
-                            <input type="datetime-local" id="taskDueDate" class="input-field min-w-44">
-                            <button id="expandTaskFormBtn" class="btn-secondary" title="More Options">
-                                ⚙️
-                            </button>
-                            <button id="addTaskBtn" class="btn-add-task" title="Add Task">
-                                ➕
-                            </button>
+                            <input type="datetime-local" id="taskDueDate" class="input-field min-w-44 flex-1 sm:flex-initial">
+                            <div class="flex gap-2">
+                                <button id="expandTaskFormBtn" class="btn-secondary" title="More Options">
+                                    ⚙️
+                                </button>
+                                <button id="addTaskBtn" class="btn-add-task" title="Add Task">
+                                    ➕
+                                </button>
+                            </div>
                         </div>
                     </div>
                     

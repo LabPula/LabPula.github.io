@@ -175,34 +175,93 @@ class RichTextEditor {
         const selection = window.getSelection();
         if (selection.rangeCount === 0) return;
         
+        this.hideLinkDialog(); // Hide any existing dialog
+        
         const selectedText = selection.toString().trim();
+        const currentRange = selection.getRangeAt(0);
         
-        // Check if selected text is a valid URL
-        if (!selectedText || (!selectedText.startsWith('http://') && !selectedText.startsWith('https://'))) {
-            return; // Do nothing if not a valid URL
+        // Create link dialog
+        const dialog = document.createElement('div');
+        dialog.className = 'url-dialog';
+        dialog.innerHTML = `
+            <input type="url" placeholder="Enter URL (https://...)" value="${selectedText.startsWith('http') ? selectedText : ''}" class="url-input">
+            <input type="text" placeholder="Link text" value="${selectedText}" class="text-input">
+            <div class="url-dialog-buttons">
+                <button class="btn-secondary cancel-btn">Cancel</button>
+                <button class="btn-primary insert-btn">Insert Link</button>
+            </div>
+        `;
+        
+        this.container.appendChild(dialog);
+        this.urlDialog = dialog;
+        
+        const urlInput = dialog.querySelector('.url-input');
+        const textInput = dialog.querySelector('.text-input');
+        const insertBtn = dialog.querySelector('.insert-btn');
+        const cancelBtn = dialog.querySelector('.cancel-btn');
+        
+        urlInput.focus();
+        if (selectedText.startsWith('http')) {
+            urlInput.select();
         }
         
-        // Check if we're in a textarea (plain text mode)
-        if (this.editor.tagName === 'TEXTAREA') {
-            // For textarea, insert markdown link format
-            const start = this.editor.selectionStart;
-            const end = this.editor.selectionEnd;
-            const markdownLink = `[${selectedText}](${selectedText})`;
+        insertBtn.addEventListener('click', () => {
+            const url = urlInput.value.trim();
+            const text = textInput.value.trim() || url;
             
-            const currentValue = this.editor.value;
-            const newValue = currentValue.substring(0, start) + markdownLink + currentValue.substring(end);
-            this.editor.value = newValue;
-            
-            // Set cursor position after the inserted link
-            const newCursorPos = start + markdownLink.length;
-            this.editor.setSelectionRange(newCursorPos, newCursorPos);
-            
-            // Trigger input event to notify any listeners
-            this.editor.dispatchEvent(new Event('input', { bubbles: true }));
-        } else {
-            // For contenteditable, use the existing insertLink method
-            this.insertLink(selectedText, selectedText);
-        }
+            if (url) {
+                try {
+                    // Restore the selection
+                    selection.removeAllRanges();
+                    selection.addRange(currentRange);
+                    
+                    // Create link element
+                    const linkElement = document.createElement('a');
+                    if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('mailto:')) {
+                        linkElement.href = 'https://' + url;
+                    } else {
+                        linkElement.href = url;
+                    }
+                    linkElement.textContent = text;
+                    linkElement.target = '_blank';
+                    linkElement.rel = 'noopener noreferrer';
+                    
+                    // Insert the link
+                    currentRange.deleteContents();
+                    currentRange.insertNode(linkElement);
+                    
+                    // Move cursor after the link
+                    const newRange = document.createRange();
+                    newRange.setStartAfter(linkElement);
+                    newRange.collapse(true);
+                    selection.removeAllRanges();
+                    selection.addRange(newRange);
+                    
+                    // Trigger input event
+                    this.editor.dispatchEvent(new Event('input', { bubbles: true }));
+                } catch (error) {
+                    console.error('Failed to insert link:', error);
+                    // Fallback: use document.execCommand
+                    document.execCommand('createLink', false, url);
+                }
+            }
+            this.hideLinkDialog();
+        });
+        
+        cancelBtn.addEventListener('click', () => {
+            this.hideLinkDialog();
+        });
+        
+        // Handle Enter key
+        dialog.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                insertBtn.click();
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                cancelBtn.click();
+            }
+        });
     }
 
     editExistingLink(linkElement) {

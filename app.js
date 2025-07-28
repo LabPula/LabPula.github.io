@@ -512,12 +512,12 @@ class GTDTaskManager {
         header.className = 'task-header';
 
         const headerContent = document.createElement('div');
-        headerContent.className = 'flex items-start gap-3';
+        headerContent.className = 'flex flex-col sm:flex-row items-start gap-3';
 
         // Checkbox
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
-        checkbox.className = 'checkbox mt-1';
+        checkbox.className = 'checkbox mt-1 flex-shrink-0';
         checkbox.checked = task.completed;
         checkbox.addEventListener('change', () => this.toggleTaskCompletion(task.id));
 
@@ -642,7 +642,7 @@ class GTDTaskManager {
 
         // Action Buttons
         const actions = document.createElement('div');
-        actions.className = 'task-actions';
+        actions.className = 'task-actions flex-shrink-0';
 
         // Edit Button
         const editBtn = document.createElement('button');
@@ -677,18 +677,27 @@ class GTDTaskManager {
         actions.appendChild(archiveBtn);
         actions.appendChild(deleteBtn);
 
+        // Create a content wrapper to group content and actions on mobile
+        const contentWrapper = document.createElement('div');
+        contentWrapper.className = 'flex-1 min-w-0';
+        contentWrapper.appendChild(content);
+
+        const topRow = document.createElement('div');
+        topRow.className = 'flex items-start justify-between gap-3 w-full';
+        topRow.appendChild(contentWrapper);
+        topRow.appendChild(actions);
+
         headerContent.appendChild(checkbox);
-        headerContent.appendChild(content);
-        headerContent.appendChild(actions);
+        headerContent.appendChild(topRow);
         header.appendChild(headerContent);
         taskCard.appendChild(header);
 
         // Task Footer
         const footer = document.createElement('div');
-        footer.className = 'task-footer flex items-center justify-between';
+        footer.className = 'task-footer flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs';
 
         const leftMeta = document.createElement('div');
-        leftMeta.className = 'flex items-center gap-4';
+        leftMeta.className = 'flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4';
 
         const createdSpan = document.createElement('span');
         createdSpan.innerHTML = `📅 Created: ${this.formatDateTime(task.createdAt)}`;
@@ -701,7 +710,7 @@ class GTDTaskManager {
         }
 
         const rightMeta = document.createElement('div');
-        rightMeta.className = 'text-xs text-slate-500';
+        rightMeta.className = 'text-xs text-slate-500 hidden sm:block';
         rightMeta.textContent = `ID: ${task.id}`;
 
         footer.appendChild(leftMeta);
