@@ -206,12 +206,57 @@ class GTDTaskManager {
     }
 
     deleteTask(taskId) {
-        this.tasks = this.tasks.filter(task => task.id !== taskId);
+        console.log('deleteTask called with taskId:', taskId);
+        console.log('Current tasks before deletion:', this.tasks.length);
+        
+        // Helper function to recursively remove task from any level
+        const removeTaskRecursively = (tasks, targetId) => {
+            let removed = false;
+            const filteredTasks = tasks.filter(task => {
+                if (task.id === targetId) {
+                    console.log('Found and removing task:', task.text);
+                    removed = true;
+                    return false;
+                }
+                
+                // Recursively check subtasks
+                if (task.subtasks && task.subtasks.length > 0) {
+                    const subtasksBefore = task.subtasks.length;
+                    const result = removeTaskRecursively(task.subtasks, targetId);
+                    task.subtasks = result.tasks;
+                    if (result.removed) {
+                        removed = true;
+                        console.log('Removed subtask from parent:', task.text);
+                    }
+                }
+                
+                return true;
+            });
+            
+            return { tasks: filteredTasks, removed };
+        };
+        
+        const result = removeTaskRecursively(this.tasks, taskId);
+        this.tasks = result.tasks;
+        
+        if (!result.removed) {
+            console.warn('No task was deleted - task might not exist');
+            return;
+        }
+        
+        console.log('Task successfully deleted');
+        console.log('Tasks after deletion:', this.tasks.length);
+        
         this.saveTasksToStorage();
         
         // Also delete from Firebase if available
         if (this.useFirebase && window.firebaseManager) {
-            window.firebaseManager.deleteTask(taskId);
+            console.log('Attempting to delete from Firebase...');
+            window.firebaseManager.deleteTask(taskId).then(success => {
+                console.log('Firebase delete result:', success);
+            }).catch(error => {
+                console.error('Firebase delete error:', error);
+            });
         }
         
         this.renderTasks();
@@ -669,8 +714,21 @@ class GTDTaskManager {
         const deleteBtn = document.createElement('button');
         deleteBtn.className = 'btn-icon text-red-400';
         deleteBtn.innerHTML = '🗑️';
-        deleteBtn.title = 'Delete Task';
-        deleteBtn.addEventListener('click', () => this.confirmDelete(task.id));
+        deleteBtn.title = 'Delete Task (Click to confirm)';
+        deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            console.log('Delete button clicked for task:', task.id, task.text);
+            
+            // For testing: Add a simple confirm dialog as backup
+            if (e.shiftKey) {
+                // Shift+Click for immediate delete (testing)
+                console.log('Shift+Click detected - immediate delete');
+                this.deleteTask(task.id);
+            } else {
+                // Normal flow with confirmation modal
+                this.confirmDelete(task.id);
+            }
+        });
 
         actions.appendChild(editBtn);
         actions.appendChild(addSubtaskBtn);
@@ -849,10 +907,31 @@ class GTDTaskManager {
 
     confirmDelete(taskId) {
         const task = this.findTaskById(taskId);
-        document.getElementById('confirmMessage').textContent = `Are you sure you want to delete "${task.text}"?`;
+        if (!task) {
+            console.error('Task not found:', taskId);
+            return;
+        }
+        
+        const confirmMessage = document.getElementById('confirmMessage');
+        if (!confirmMessage) {
+            console.error('Confirm message element not found');
+            return;
+        }
+        
+        confirmMessage.textContent = `Are you sure you want to delete "${task.text}"?`;
         
         const confirmBtn = document.getElementById('confirmBtn');
-        confirmBtn.onclick = () => {
+        if (!confirmBtn) {
+            console.error('Confirm button not found');
+            return;
+        }
+        
+        // Remove any existing event listeners
+        const newConfirmBtn = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+        
+        newConfirmBtn.onclick = () => {
+            console.log('Delete confirmed for task:', taskId);
             this.deleteTask(taskId);
             this.closeModal('confirmModal');
         };
